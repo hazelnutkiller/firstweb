@@ -46,3 +46,8 @@ func Time() string {
 	return strconv.FormatInt(time.Now().Unix(), 10)
 
 }
+
+func Generate() string {
+
+	return strconv.FormatInt(time.Now().Unix(), 10)
+}

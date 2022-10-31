@@ -22,6 +22,7 @@ func PlayerCreate(c *gin.Context) {
 	requestTime := utils.Time()
 	fmt.Println(requestTime)
 
+	//請求需求欄位
 	values.Set("operatorID", operatorID)
 	values.Set("playerID", opPlayerID)
 	values.Set("requestTime", requestTime)
@@ -62,7 +63,6 @@ func PlayerCreate(c *gin.Context) {
 }
 
 func PlayerLogin(c *gin.Context) {
-
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
 	opPlayerID := c.PostForm("playerID")
@@ -70,6 +70,7 @@ func PlayerLogin(c *gin.Context) {
 	requestTime := utils.Time()
 	fmt.Println(requestTime)
 
+	//請求需求欄位
 	values.Set("operatorID", operatorID)
 	values.Set("playerID", opPlayerID)
 	values.Set("requestTime", requestTime)
@@ -113,15 +114,17 @@ func PlayerDeposit(c *gin.Context) {
 	opPlayerID := c.PostForm("playerID")
 	amount := c.PostForm("amount")
 	appSecret := c.PostForm("appSecret")
-	uid := c.PostForm("uid")
+
 	//取得requestTime
 	requestTime := utils.Time()
 	fmt.Println(requestTime)
 
 	//自動取得uid
 
-	//uid := utils.Generate()
+	uid := utils.Generate()
+	fmt.Println(uid)
 
+	//請求需求欄位
 	values.Set("operatorID", operatorID)
 	values.Set("playerID", opPlayerID)
 	values.Set("requestTime", requestTime)
@@ -136,7 +139,7 @@ func PlayerDeposit(c *gin.Context) {
 	}
 
 	//存款簽名組成
-	st := (c.PostForm("amount") + c.PostForm("appSecret") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("uid"))
+	st := (c.PostForm("amount") + c.PostForm("appSecret") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + uid)
 	md5Str := utils.GetSignature(st)
 	fmt.Println(md5Str)
 
