@@ -1,0 +1,430 @@
+package api
+
+import (
+	"context"
+	"encoding/json"
+	"firstweb/utils"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+)
+
+var CardValues = map[string]string{
+	"cluba": "club_a", "club2": "club_2", "club3": "club_3", "club4": "club_4", "club5": "club_5", "club6": "club_6", "club7": "club_7", "club8": "club_8", "club9": "club_9", "club10": "club_10", "clubj": "club_j", "clubq": "club_q", "clubk": "club_k", "hearta": "heart_a", "heart2": "heart_2", "heart3": "heart_3", "heart4": "heart_4", "heart5": "heart_5", "heart6": "heart_6", "heart7": "heart_7", "heart8": "heart_8", "heart9": "heart_9", "heart10": "heart_10", "heartj": "heart_j", "heartq": "heart_q", "heartk": "heart_k", "diamonda": "diamond_a", "diamond2": "diamond_2", "diamond3": "diamond_3", "diamond4": "diamond_4", "diamond5": "diamond_5", "diamond6": "diamond_6", "diamond7": "diamond_7", "diamond8": "diamond_8", "diamond9": "diamond_9", "diamond10": "diamond_10", "diamondj": "diamond_j", "diamondq": "diamond_q", "diamondk": "diamond_k", "spadea": "spade_a", "spade2": "spade_2", "spade3": "spade_3", "spade4": "spade_4", "spade5": "spade_5", "spade6": "spade_6", "spade7": "spade_7", "spade8": "spade_8", "spade9": "spade_9", "spade10": "spade_10", "spadej": "spade_j", "spadeq": "spade_q", "spadek": "spade_k",
+}
+
+type TransferInfo struct {
+	OperatorID   string `json:"operatorID"`
+	PlayerID     string `json:"playerID"`
+	UID          string `json:"uid"`
+	RefID        string `json:"refID"`
+	TransferType string `json:"transferType"`
+	TransferTime int64  `json:"transferTime"`
+	TranAmount   int64  `json:"tranAmount"`
+	Balance      int64  `json:"balance"`
+}
+
+type BetInfo struct {
+	BetID          string            `json:"betID"`
+	OperatorID     string            `json:"operatorID"`
+	PlayerID       string            `json:"playerID"`
+	WEPlayerID     string            `json:"wePlayerID"`
+	BetDateTime    int64             `json:"betDateTime"`
+	SettlementTime int64             `json:"settlementTime"`
+	BetStatus      string            `json:"betStatus"`
+	BetCode        string            `json:"betCode"`
+	ValidBetAmount int64             `json:"validBetAmount"`
+	GameResult     string            `json:"gameResult"`
+	Device         string            `json:"device"`
+	BetAmount      int64             `json:"betAmount"`
+	WinlossAmount  int64             `json:"winlossAmount"`
+	Category       string            `json:"category"`
+	GameType       string            `json:"gameType"`
+	GameRoundID    string            `json:"gameRoundID"`
+	IP             string            `json:"ip"`
+	CardResult     map[string]string `json:"cardresult"`
+}
+
+// func ConvertToTransferInfo(val *fundtran.FundTran) TransferInfo {
+// 	m := TransferInfo{
+// 		OperatorID:   val.OperatorID,
+// 		PlayerID:     val.OpPlayerID,
+// 		UID:          val.OpFundTranID,
+// 		RefID:        val.PgFundTranID,
+// 		TransferType: val.TranType.String(),
+// 		TransferTime: val.TranDate,
+// 		TranAmount:   val.TranAmount,
+// 		Balance:      val.PgBalAmount,
+// 	}
+
+// 	switch val.TranType {
+// 	case fundtran.FundTranType_FUND_TO_PG:
+// 		m.TransferType = "deposit"
+// 	case fundtran.FundTranType_FUND_FROM_PG:
+// 		m.TransferType = "withdraw"
+// 	}
+
+// 	return m
+// }
+
+func ConvertCardResult(in string) map[string]string {
+
+	if in != "" {
+
+		out := map[string]string{}
+
+		err := json.Unmarshal([]byte(in), &out)
+		if err == nil {
+			for k, v := range out {
+				out[k] = CardValues[v]
+			}
+			return out
+		}
+
+	}
+
+	return nil
+}
+
+var checkGameType map[string]bool = map[string]bool{
+	"BAC":  true,
+	"BAS":  true,
+	"BAI":  true,
+	"DT":   true,
+	"BAM":  true,
+	"BAB":  true,
+	"DTB":  true,
+	"BAMB": true,
+	"BASB": true,
+	"ZJH":  true,
+	"OX":   true,
+	"ZJHB": true,
+	"OXB":  true,
+	"BAA":  true,
+	"DTS":  true,
+	"BAL":  true,
+}
+
+func ConvertToBetInfo(val map[string]string) BetInfo {
+	betDateTime, _ := strconv.ParseInt(val["betdatetime"], 10, 64)
+	settlementTime, _ := strconv.ParseInt(val["settlementtime"], 10, 64)
+	betAmount, _ := strconv.ParseInt(val["betamount"], 10, 64)
+	winlossAmount, _ := strconv.ParseInt(val["winlossamount"], 10, 64)
+	validBetAmount, _ := strconv.ParseInt(val["validbetamount"], 10, 64)
+	cardresult := ""
+	if _, ok := checkGameType[val["gametype"]]; ok {
+		cardresult = val["cardresult"]
+	}
+	m := BetInfo{
+		BetID:          val["betid"],
+		OperatorID:     val["operatorid"],
+		PlayerID:       val["opplayerid"],
+		WEPlayerID:     val["playerid"],
+		BetDateTime:    betDateTime / 1000,
+		SettlementTime: settlementTime / 1000,
+		BetCode:        val["betcode"],
+		ValidBetAmount: validBetAmount,
+		GameResult:     val["gameresult"],
+		Device:         val["device"],
+		BetStatus:      val["betstatus"],
+		BetAmount:      betAmount,
+		WinlossAmount:  winlossAmount,
+		Category:       val["category"],
+		GameType:       val["gametype"],
+		GameRoundID:    val["gameroundid"],
+		IP:             val["ip"],
+		CardResult:     ConvertCardResult(cardresult),
+	}
+
+	// {"A1":"spade5","A2":"spade9","A3":"heartj","B1":"spade4","B2":"spade2","B3":""}
+
+	return m
+}
+
+func HistoryTransfer(c *gin.Context) {
+	values := url.Values{}
+	operatorID := c.PostForm("operatorID")
+	opPlayerID := c.PostForm("playerID")
+	//uid := c.PostForm("uid")
+	startTime := c.PostForm("startTime")
+	endTime := c.PostForm("endTime")
+	appSecret := c.PostForm("appSecret")
+	limit := c.PostForm("limit")
+
+	requestTime := utils.Time()
+	fmt.Println(requestTime)
+
+	//自動取得uid
+
+	uid := utils.Generate()
+	fmt.Println(uid)
+
+	//請求需求欄位
+	values.Set("operatorID", operatorID)
+	values.Set("startTime", startTime)
+	values.Set("endTime", endTime)
+	values.Set("playerID", opPlayerID)
+	values.Set("requestTime", requestTime)
+	values.Set("appSecret", appSecret)
+	values.Set("uid", uid)
+
+	sTime, eTime := 0, 0
+
+	//資料筆數 預設:50
+	if limit == "" {
+		limit = "50"
+	}
+
+	// Step 1: Check the required parameters
+	if missing := utils.CheckPostFormData(c, "operatorID"); missing != "" {
+		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
+		return
+	}
+
+	if uid == "" && (startTime == "" || endTime == "") {
+		utils.ErrorResponse(c, 400, "Missing parameter: endTime|startTime", nil)
+		return
+	}
+
+	rtErr := utils.CheckRequestTime(requestTime)
+	if rtErr != nil {
+		utils.ErrorResponse(c, 400, "Incorrect requestTime", rtErr)
+		return
+	}
+	//資料限制筆數 最大:500
+	iLimit, err := strconv.Atoi(limit)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect limit format: "+limit, nil)
+		return
+	} else if iLimit > 500 {
+		iLimit = 500
+	}
+
+	if startTime != "" && endTime != "" {
+		sTime, err = strconv.Atoi(startTime)
+		if err != nil {
+			utils.ErrorResponse(c, 400, "Incorrect startTime format: "+startTime, nil)
+			return
+		}
+
+		eTime, err = strconv.Atoi(endTime)
+		if err != nil {
+			utils.ErrorResponse(c, 400, "Incorrect endTime format: "+endTime, nil)
+			return
+		}
+		//結束與開始時間間隔不得大於一個月
+		if (eTime - sTime) > 2592000 {
+			utils.ErrorResponse(c, 400, "Incorrect time period", nil)
+			return
+		}
+	}
+	//轉帳記錄簽名組成
+	st := (c.PostForm("appSecret") + c.PostForm("endTime") + c.PostForm("limit") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime") + uid)
+	md5Str := utils.GetSignature(st)
+	fmt.Println(md5Str)
+
+	req, err := http.NewRequest("POST", "https://uat-op-api.bpweg.com/history/transfer", strings.NewReader(values.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("signature", md5Str)
+	clt := &http.Client{}
+	r, _ := clt.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	//客戶端完成之後要關閉請求
+	defer r.Body.Close()
+	body, _ := ioutil.ReadAll(r.Body)
+
+	c.JSON(200, string(body))
+}
+
+func HistoryBet(c *gin.Context) {
+
+	// d := ConvertCardResult(`{"A1":"spade5","A2":"spade9","A3":"heartj","B1":"spade4","B2":"spade2","B3":""}`)
+
+	// c.JSON(200, gin.H{"data": d})
+	// return
+	values := url.Values{}
+	operatorID := c.PostForm("operatorID")
+	agentID := c.PostForm("agentID")
+	playerID := c.PostForm("playerID")
+	betID := c.PostForm("betID")
+	category := c.PostForm("category")
+	startTime := c.PostForm("startTime")
+	endTime := c.PostForm("endTime")
+	limit := c.PostForm("limit")
+	offset := c.PostForm("offset")
+	betstatus := c.PostForm("betstatus")
+	isSettlementTime := c.PostForm("isSettlementTime")
+	appSecret := c.PostForm("appSecret")
+
+	requestTime := utils.Time()
+	fmt.Println(requestTime)
+
+	//請求需求欄位
+	values.Set("operatorID", operatorID)
+	values.Set("startTime", startTime)
+	values.Set("endTime", endTime)
+	values.Set("playerID", playerID)
+	values.Set("betID", betID)
+	values.Set("category", category)
+	values.Set("betstatus", betstatus)
+	values.Set("limit", limit)
+	values.Set("offset", offset)
+	values.Set("requestTime", requestTime)
+	values.Set("isSettlementTime", isSettlementTime)
+	values.Set("requestTime", requestTime)
+	values.Set("appSecret", appSecret)
+
+
+//預設資料筆數為50筆
+	if limit == "" {
+		limit = "50"
+	}
+//略過筆數預設為0
+	if offset == "" {
+		offset = "0"
+	}
+
+	// Step 1: Check the required parameters
+	if missing := utils.CheckPostFormData(c, "operatorID", "startTime", "endTime"); missing != "" {
+		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
+		return
+	}
+
+//資料限制筆數最大:500
+	iLimit, err := strconv.Atoi(limit)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect limit format: "+limit, nil)
+		return
+	} else if iLimit > 500 {
+		iLimit = 500
+	}
+
+	iOffset, err := strconv.Atoi(offset)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect offset format: "+limit, nil)
+		return
+	}
+
+	sTime, err := strconv.Atoi(startTime)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect startTime format: "+startTime, nil)
+		return
+	}
+
+	eTime, err := strconv.Atoi(endTime)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect endTime format: "+endTime, nil)
+		return
+	}
+//結束與開始時間間隔不得大於一個月
+	if (eTime - sTime) > 2592000 {
+		utils.ErrorResponse(c, 400, "Incorrect time period", nil)
+		return
+	}
+
+	//轉帳記錄簽名組成
+	st := (c.PostForm("appSecret") + c.PostForm("betID") + c.PostForm("betstatus") + c.PostForm("category") + c.PostForm("endTime") + c.PostForm("isSettlementTime") + c.PostForm("limit")  + c.PostForm("offset") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime"))
+	md5Str := utils.GetSignature(st)
+	fmt.Println(md5Str)
+
+	req, err := http.NewRequest("POST", "https://uat-op-api.bpweg.com/history/transfer", strings.NewReader(values.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("signature", md5Str)
+	clt := &http.Client{}
+	r, _ := clt.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	//客戶端完成之後要關閉請求
+	defer r.Body.Close()
+	body, _ := ioutil.ReadAll(r.Body)
+
+	c.JSON(200, string(body))
+}
+
+
+
+	// Step 4: Add String Filter
+	searchfilters := map[string]*company.ReportStringFilter{}
+	filters := map[string]*company.ReportStringFilter{}
+
+	filters["operatorid"] = &company.ReportStringFilter{
+		Values: []string{operatorID},
+	}
+
+	if betID != "" {
+		filters["betid"] = &company.ReportStringFilter{
+			Values: []string{betID},
+		}
+	}
+
+	if category != "" {
+		filters["category"] = &company.ReportStringFilter{
+			Values: []string{category},
+		}
+	}
+
+	if playerID != "" {
+		filters["opplayerid"] = &company.ReportStringFilter{
+			Values: []string{playerID},
+		}
+	}
+
+	if betstatus != "" && betstatus != "all" {
+		filters["betstatus"] = &company.ReportStringFilter{
+			Values: []string{betstatus},
+		}
+	}
+
+	orderBy := "betdatetime"
+	if isSettlementTime == "true" {
+		orderBy = "settlementtime"
+	}
+
+	var scope company.Scope
+	if agentID != "" {
+		scope = company.Scope{
+			CompanyID: opdata.AgentID,
+			AgentID:   opdata.AgentID,
+			Site:      "api",
+			Role:      "admin",
+		}
+	}
+
+	// Step 5: Get Bet Report
+	data, err := srvclient.CompanyClient.GetReportBet(context.TODO(), &company.ReportRequest{
+		Starttime:           int64(sTime),
+		Endtime:             int64(eTime),
+		Limit:               int32(iLimit),
+		Offset:              int32(iOffset),
+		StringFilters:       filters,
+		StringSearchFilters: searchfilters,
+		Site:                "API",
+		OrderBy:             orderBy,
+		Scope:               &scope,
+	})
+	if err != nil {
+		utils.ErrorResponse(c, 500, "Failed to get history", err)
+		return
+	}
+
+	count := 0
+	res := []BetInfo{}
+	for _, v := range data.Data {
+		dd := map[string]string{}
+		for i, h := range data.Header {
+			dd[h] = v.Data[i]
+		}
+		res = append(res, ConvertToBetInfo(dd))
+		count++
+	}
+
+	c.JSON(200, gin.H{"totalCount": data.Count, "dataCount": count, "data": res})
+}
