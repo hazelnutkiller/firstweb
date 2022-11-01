@@ -50,4 +50,5 @@ func Time() string {
 func Generate() string {
 
 	return strconv.FormatInt(time.Now().Unix(), 10)
+
 }
