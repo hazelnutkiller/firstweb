@@ -46,7 +46,7 @@ func Router() {
 	router.POST("/player/withdraw", api.PlayerWithdraw)
 	router.POST("/player/logout", api.PlayerLogout)
 	router.POST("/history/transfer", api.HistoryTransfer)
-	router.POST("/history/bet", api.HistoryBet)
+	//router.POST("/history/bet", api.HistoryBet)
 
 	//limitGroup := r.Group("/history", mgin.NewMiddleware(limiterInstance))
 
