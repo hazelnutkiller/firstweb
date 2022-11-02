@@ -1,0 +1,2 @@
+time="2022-11-02T23:53:12+08:00" level=info msg="info msg" func=firstweb/logrus.Logrus file="C:/Users/User/go/src/firstweb/firstweb/logrus/logrus.go:74"
+time="2022-11-02T23:53:12+08:00" level=info msg="This will only be sent to Redis" func=firstweb/logrus.Logrus file="C:/Users/User/go/src/firstweb/firstweb/logrus/logrus.go:76"

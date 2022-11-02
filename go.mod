@@ -7,7 +7,12 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 )
 
-require github.com/google/go-cmp v0.5.8 // indirect
+require (
+	github.com/antonfisher/nested-logrus-formatter v1.3.1 // indirect
+	github.com/garyburd/redigo v1.6.4 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/rogierlommers/logrus-redis-hook v0.0.0-20210902125448-a9c74cf92631 // indirect
+)
 
 require (
 	github.com/gin-contrib/cors v1.4.0
