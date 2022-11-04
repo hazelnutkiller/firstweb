@@ -1,2 +1,2 @@
-time="2022-11-02T23:53:12+08:00" level=info msg="info msg" func=firstweb/logrus.Logrus file="C:/Users/User/go/src/firstweb/firstweb/logrus/logrus.go:74"
-time="2022-11-02T23:53:12+08:00" level=info msg="This will only be sent to Redis" func=firstweb/logrus.Logrus file="C:/Users/User/go/src/firstweb/firstweb/logrus/logrus.go:76"
+time="2022-11-04T19:04:53+08:00" level=info msg="POST /history/transfer 400" HTTPResponse="{2022/11/04 19:04:53 127.0.0.1 POST /history/transfer Content-Length: [111]\r\nUser-Agent: [PostmanRuntime/7.29.2]\r\nAccept: [*/*]\r\nAccept-Encoding: [gzip, deflate, br]\r\nConnection: [keep-alive]\r\nContent-Type: [application/x-www-form-urlencoded]\r\nPostman-Token: [f7054b35-a438-4891-9f79-4f615bdfe006]\r\n startTime=1664604024&endTime=1666936824&playerID=mindy&appSecret=98dAIV7U6PHrw4G_crlOjTMui_w79cexpRM3sMZGRaU%3D 400  Missing parameter: operatorID}"
+ZGRaU%3D 200  <nil>}"

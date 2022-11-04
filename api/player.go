@@ -54,11 +54,14 @@ func PlayerCreate(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	//客戶端完成之後要關閉請求
 	defer r.Body.Close()
+	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-
-	c.JSON(200, string(body))
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
 
 }
 
@@ -151,11 +154,14 @@ func PlayerDeposit(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	//客戶端完成之後要關閉請求
 	defer r.Body.Close()
+	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-
-	c.JSON(200, string(body))
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
 
 }
 
@@ -202,11 +208,14 @@ func PlayerWithdraw(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	//客戶端完成之後要關閉請求
 	defer r.Body.Close()
+	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-
-	c.JSON(200, string(body))
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
 
 }
 func PlayerLogout(c *gin.Context) {
@@ -246,10 +255,13 @@ func PlayerLogout(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	//客戶端完成之後要關閉請求
 	defer r.Body.Close()
+	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-
-	c.JSON(200, string(body))
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
 
 }

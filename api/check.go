@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/json"
 	"firstweb/utils"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -36,6 +38,11 @@ func Check(c *gin.Context) {
 		log.Fatal(err)
 	}
 	defer r.Body.Close()
-	b, _ := ioutil.ReadAll(r.Body)
-	c.JSON(200, string(b))
+	//读取整个响应体
+	body, _ := ioutil.ReadAll(r.Body)
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
 }
