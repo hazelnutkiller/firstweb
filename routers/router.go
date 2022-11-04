@@ -2,6 +2,7 @@ package routers
 
 import (
 	"firstweb/api"
+	"firstweb/logrus"
 	"log"
 	"path/filepath"
 	"time"
@@ -12,8 +13,9 @@ import (
 )
 
 func Router() {
-	router := gin.Default()
-	//router := gin.New()
+	router := gin.New()
+	//router := gin.Default()
+	router.Use(logrus.Logrus())
 	router.RedirectFixedPath = true
 
 	// create limiter
@@ -46,7 +48,7 @@ func Router() {
 	router.POST("/player/withdraw", api.PlayerWithdraw)
 	router.POST("/player/logout", api.PlayerLogout)
 	router.POST("/history/transfer", api.HistoryTransfer)
-	//router.POST("/history/bet", api.HistoryBet)
+	router.POST("/history/bet", api.HistoryBet)
 
 	//limitGroup := r.Group("/history", mgin.NewMiddleware(limiterInstance))
 
@@ -75,7 +77,7 @@ func Router() {
 	//}
 	//return r
 
-	router.Run(":80")
+	router.Run(":9999")
 }
 
 func loadTemplates() multitemplate.Renderer {
