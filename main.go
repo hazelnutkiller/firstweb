@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	logrus.Init()
 	logrus.Logrus()
 	routers.Router()
 	fmt.Println("can run")

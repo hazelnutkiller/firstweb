@@ -17,7 +17,7 @@ import (
 //Fire(*Entry) error
 //}
 
-func init() {
+func Init() {
 	hookConfig := logredis.HookConfig{
 		Host:     "localhost",
 		Key:      "mykey",
@@ -36,21 +36,20 @@ func init() {
 }
 
 func Logrus() {
-
+	logrus.Info("just some info logging...")
 	//設置日誌級別为TraceLevel，为了能看到Trace和Debug日志
 	logrus.SetLevel(logrus.TraceLevel)
 	// 設置日誌格式爲json格式
 	//log.SetFormatter(&log.JSONFormatter{})
 
-	logrus.Trace("trace msg")
+	//logrus.Trace("trace msg")
 	//logrus.Debug("debug msg")
 	logrus.Info("info msg")
 	//logrus.Warn("warn msg")
-	logrus.Error("error msg")
+	//logrus.Error("error msg")
 	//logrus.Fatal("fatal msg")
 	//logrus.Panic("panic msg")
 
-	//logrus.Panic("panic msg")
 	//time：输出日志的时间
 	//level：日志级别
 	//msg：日志信息。
