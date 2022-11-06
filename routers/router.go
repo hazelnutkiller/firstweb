@@ -49,7 +49,8 @@ func Router() {
 	router.POST("/player/logout", api.PlayerLogout)
 	router.POST("/history/transfer", api.HistoryTransfer)
 	router.POST("/history/bet", api.HistoryBet)
-
+	router.POST("/history/summary", api.HistorySummary)
+	router.POST("report/bet", api.ReportBet)
 	//limitGroup := r.Group("/history", mgin.NewMiddleware(limiterInstance))
 
 	// @Api:History@

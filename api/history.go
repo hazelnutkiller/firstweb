@@ -145,6 +145,7 @@ func ConvertToBetInfo(val map[string]string) BetInfo {
 	return m
 }
 
+//------------------------------------------------------------------------------------------------------------
 func HistoryTransfer(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -247,6 +248,7 @@ func HistoryTransfer(c *gin.Context) {
 
 }
 
+//---------------------------------------------------------------------------------------------------------
 func HistoryBet(c *gin.Context) {
 
 	// d := ConvertCardResult(`{"A1":"spade5","A2":"spade9","A3":"heartj","B1":"spade4","B2":"spade2","B3":""}`)
@@ -333,6 +335,172 @@ func HistoryBet(c *gin.Context) {
 	fmt.Println(md5Str)
 
 	req, err := http.NewRequest("POST", "https://uat-op-api.bpweg.com/history/bet", strings.NewReader(values.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("signature", md5Str)
+	clt := &http.Client{}
+	r, _ := clt.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer r.Body.Close()
+	//读取整个响应体
+	body, _ := ioutil.ReadAll(r.Body)
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
+}
+
+//------------------------------------------------------------------------------------------------------------
+func HistorySummary(c *gin.Context) {
+
+	values := url.Values{}
+	operatorID := c.PostForm("operatorID")
+	startTime := c.PostForm("startTime")
+	endTime := c.PostForm("endTime")
+	appSecret := c.PostForm("appSecret")
+
+	requestTime := utils.Time()
+	fmt.Println(requestTime)
+
+	//請求需求欄位
+
+	values.Set("operatorID", operatorID)
+	values.Set("startTime", startTime)
+	values.Set("endTime", endTime)
+	values.Set("requestTime", requestTime)
+	values.Set("appSecret", appSecret)
+
+	// Step 1: Check the required parameters
+	if missing := utils.CheckPostFormData(c, "operatorID", "startTime", "endTime"); missing != "" {
+		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
+		return
+	}
+
+	sTime, err := strconv.Atoi(startTime)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect startTime format: "+startTime, nil)
+		return
+	}
+
+	eTime, err := strconv.Atoi(endTime)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect endTime format: "+endTime, nil)
+		return
+	}
+	//結束與開始時間間隔不得大於一個月
+	if (eTime - sTime) > 2592000 {
+		utils.ErrorResponse(c, 400, "Incorrect time period", nil)
+		return
+	}
+
+	//投注記錄統計簽名組成
+	st := (c.PostForm("appSecret") + c.PostForm("endTime") + c.PostForm("operatorID") + requestTime + c.PostForm("startTime"))
+	md5Str := utils.GetSignature(st)
+	fmt.Println(md5Str)
+
+	req, err := http.NewRequest("POST", "https://uat-op-api.bpweg.com/history/summary", strings.NewReader(values.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("signature", md5Str)
+	clt := &http.Client{}
+	r, _ := clt.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer r.Body.Close()
+	//读取整个响应体
+	body, _ := ioutil.ReadAll(r.Body)
+	var data interface{}
+	json.Unmarshal(body, &data)
+	c.JSON(200, data)
+	//打印看返回的cjson是什麼
+	fmt.Println("data json:", data)
+}
+
+//------------------------------------------------------------------------------------------------------------
+func ReportBet(c *gin.Context) {
+	values := url.Values{}
+	operatorID := c.PostForm("operatorID")
+	agentID := c.PostForm("agentID")
+	playerID := c.PostForm("playerID")
+	betID := c.PostForm("betID")
+	category := c.PostForm("category")
+	startTime := c.PostForm("startTime")
+	endTime := c.PostForm("endTime")
+	limit := c.PostForm("limit")
+	offset := c.PostForm("offset")
+	betstatus := c.PostForm("betstatus")
+	isSettlementTime := c.PostForm("isSettlementTime")
+	appSecret := c.PostForm("appSecret")
+
+	requestTime := utils.Time()
+	fmt.Println(requestTime)
+
+	//請求需求欄位
+	values.Set("agentID", agentID)
+	values.Set("operatorID", operatorID)
+	values.Set("startTime", startTime)
+	values.Set("endTime", endTime)
+	values.Set("playerID", playerID)
+	values.Set("betID", betID)
+	values.Set("category", category)
+	values.Set("betstatus", betstatus)
+	values.Set("limit", limit)
+	values.Set("offset", offset)
+	values.Set("requestTime", requestTime)
+	values.Set("isSettlementTime", isSettlementTime)
+	values.Set("appSecret", appSecret)
+
+	//預設資料筆數為50筆
+	if limit == "" {
+		limit = "50"
+	}
+	//略過筆數預設為0
+	if offset == "" {
+		offset = "0"
+	}
+
+	// Step 1: Check the required parameters
+	if missing := utils.CheckPostFormData(c, "operatorID", "startTime", "endTime"); missing != "" {
+		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
+		return
+	}
+
+	//資料限制筆數最大:500
+	iLimit, err := strconv.Atoi(limit)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect limit format: "+limit, nil)
+		return
+	} else if iLimit > 500 {
+		iLimit = 500
+	}
+
+	sTime, err := strconv.Atoi(startTime)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect startTime format: "+startTime, nil)
+		return
+	}
+
+	eTime, err := strconv.Atoi(endTime)
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Incorrect endTime format: "+endTime, nil)
+		return
+	}
+	//結束與開始時間間隔不得大於一個月
+	if (eTime - sTime) > 2592000 {
+		utils.ErrorResponse(c, 400, "Incorrect time period", nil)
+		return
+	}
+
+	//轉帳記錄簽名組成
+	st := (c.PostForm("appSecret") + c.PostForm("betID") + c.PostForm("betstatus") + c.PostForm("category") + c.PostForm("endTime") + c.PostForm("isSettlementTime") + c.PostForm("limit") + c.PostForm("offset") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime"))
+	md5Str := utils.GetSignature(st)
+	fmt.Println(md5Str)
+
+	req, err := http.NewRequest("POST", "https://uat-op-api.bpweg.com/report/bet", strings.NewReader(values.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("signature", md5Str)
 	clt := &http.Client{}

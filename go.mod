@@ -4,14 +4,15 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.8.1
+	github.com/google/uuid v1.3.0
+	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/sirupsen/logrus v1.9.0
 )
 
 require (
-	github.com/antonfisher/nested-logrus-formatter v1.3.1 // indirect
-	github.com/garyburd/redigo v1.6.4 // indirect
+	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/rogierlommers/logrus-redis-hook v0.0.0-20210902125448-a9c74cf92631 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
 
 require (

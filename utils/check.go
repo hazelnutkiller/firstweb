@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func CheckPostFormData(c *gin.Context, vals ...string) string {
@@ -49,6 +50,7 @@ func Time() string {
 
 func Generate() string {
 
-	return strconv.FormatInt(time.Now().Unix(), 10)
-
+	uuid := uuid.New()
+	uid := uuid.String()
+	return uid
 }

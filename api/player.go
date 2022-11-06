@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//-------------------------------------------------------------------------------------------------------------
 func PlayerCreate(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -65,6 +66,7 @@ func PlayerCreate(c *gin.Context) {
 
 }
 
+//-------------------------------------------------------------------------------------------------------------
 func PlayerLogin(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -111,6 +113,7 @@ func PlayerLogin(c *gin.Context) {
 
 }
 
+//-------------------------------------------------------------------------------------------------------
 func PlayerDeposit(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -165,6 +168,7 @@ func PlayerDeposit(c *gin.Context) {
 
 }
 
+//--------------------------------------------------------------------------------------------------------------
 func PlayerWithdraw(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -218,6 +222,8 @@ func PlayerWithdraw(c *gin.Context) {
 	fmt.Println("data json:", data)
 
 }
+
+//-----------------------------------------------------------------------------------------------------------
 func PlayerLogout(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
