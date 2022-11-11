@@ -1,3 +1,0 @@
-time="2022-11-06T19:04:10+08:00" level=info msg="POST /player/deposit 200" HTTPResponse="{2022/11/06 19:04:10 127.0.0.1 POST /player/deposit User-Agent: [PostmanRuntime/7.29.2]\r\nPostman-Token: [30efbcf8-b656-4730-be81-882ddf2f4a00]\r\nAccept-Encoding: [gzip, deflate, br]\r\nConnection: [keep-alive]\r\nContent-Length: [105]\r\nAccept: [*/*]\r\nContent-Type: [application/x-www-form-urlencoded]\r\n operatorID=apihmhmroea0&playerID=mindy&amount=12&appSecret=98dAIV7U6PHrw4G_crlOjTMui_w79cexpRM3sMZGRaU%3D 200  <nil>}"
-sMZGRaU%3D&betID=CCT8G1A45S82BBAT3IP0 500  <nil>}"
-l>}"
