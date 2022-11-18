@@ -30,15 +30,22 @@ func PlayerCreate(c *gin.Context) {
 	values.Set("appSecret", appSecret)
 	values.Set("nickname", nickname)
 
-	// Step 1: Check the required parameters
+	// Step 1: Check the required parameters 驗證是否沒填
 	if missing := utils.CheckPostFormData(c, "operatorID", "playerID", "nickname"); missing != "" {
 		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
 		return
 	}
 
-	// Step 2: Check length
+	// Step 2: Check length 驗證長度
 	if len(operatorID) > 20 || len(opPlayerID) > 20 || len(nickname) > 200 {
 		utils.ErrorResponse(c, 400, "Maximum request length exceeded", nil)
+		return
+	}
+
+	// Step 3: Check request time 驗證請求時間
+	rtErr := utils.CheckRequestTime(requestTime)
+	if rtErr != nil {
+		utils.ErrorResponse(c, 400, "Incorrect requestTime", rtErr)
 		return
 	}
 
@@ -143,6 +150,30 @@ func PlayerDeposit(c *gin.Context) {
 		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
 		return
 	}
+	// Step 3: Check amount Int64 驗證金額格式
+
+	gainBal, formatErr := utils.CheckAmount(amount)
+
+	if formatErr != nil {
+		utils.ErrorResponse(c, 400, "Incorrect amount format", formatErr)
+		return
+	}
+	fmt.Println(gainBal)
+
+	//FundTran: &trn.FundTran{
+	//	PlayerID:     data.PlayerProfile.PlayerID,
+	//	OpPlayerID:   opPlayerID,
+	//	OperatorID:   operatorID,
+	//	BetID:        "", // ???
+	//	PgFundTranID: refID,
+	//	OpFundTranID: uid,
+	//	TranType:     trn.FundTranType_FUND_TO_PG,
+	//	TranDate:     tranDate,
+	//	TranAmount:   gainBal,
+	//	OpBalAmount:  0,
+	// PgBalAmount:  currentBal,
+	//	Reference: "", // ???
+	//	},
 
 	//存款簽名組成
 	st := (c.PostForm("amount") + c.PostForm("appSecret") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + uid)
@@ -198,6 +229,15 @@ func PlayerWithdraw(c *gin.Context) {
 		utils.ErrorResponse(c, 400, "Missing parameter: "+missing, nil)
 		return
 	}
+	// Step 3: Check amount Int64 驗證金額格式
+
+	gainBal, formatErr := utils.CheckAmount(amount)
+
+	if formatErr != nil {
+		utils.ErrorResponse(c, 400, "Incorrect amount format", formatErr)
+		return
+	}
+	fmt.Println(gainBal)
 
 	//存款簽名組成
 	st := (c.PostForm("amount") + c.PostForm("appSecret") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + uid)
@@ -270,4 +310,40 @@ func PlayerLogout(c *gin.Context) {
 	//打印看返回的cjson是什麼
 	fmt.Println("data json:", data)
 
+	// Step 8: Add Transcation Record 增加交易記錄於db中
+	//tranDate := time.Now().Unix()
+	//	refID := xid.New().String()
+	//rsp, err := srvclient.WalletClient.MWAddFundTran(context.TODO(), &wallet.MWAddFundTranRequest{
+	//FundTran: &trn.FundTran{
+	//	PlayerID:     data.PlayerProfile.PlayerID,
+	//	OpPlayerID:   opPlayerID,
+	//	OperatorID:   operatorID,
+	//	BetID:        "", // ???
+	//	PgFundTranID: refID,
+	//	OpFundTranID: uid,
+	//TranType:     trn.FundTranType_FUND_TO_PG,
+	//TranDate:     tranDate,
+	//	TranAmount:   gainBal,
+	//	OpBalAmount:  0,
+	// PgBalAmount:  currentBal,
+	//	Reference: "", // ???
+	//	},
+	//	})
+	//if err != nil {
+	//utils.ErrorResponse(c, 500, "Transaction failed", err)
+	//} else {
+	// Check if balance is negative
+	//playerBalance := int64(0)
+	//if rsp.BalAmount > 0 {
+	//	playerBalance = rsp.BalAmount
+	//	}
+	//	c.JSON(200, gin.H{
+	//"balance":  playerBalance,
+	//"currency": Currency.String(),
+	//	"time":     tranDate,
+	//	"refID":    refID,
+	//	})
+	// publish balance change message
+	//go kafka.PublishBalanceChange("in", data.PlayerProfile.PlayerID, opPlayerID, operatorID, data.PlayerProfile.AgentID, rsp.BalAmount+gainBal, rsp.BalAmount)
+	//	}
 }
