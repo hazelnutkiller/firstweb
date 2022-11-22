@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"context"
 	"crypto/md5"
 	"fmt"
 	"strconv"
@@ -35,6 +34,7 @@ func CheckPostFormData(c *gin.Context, vals ...string) string {
 }
 
 func CheckRequestTime(requestTime string) error {
+	//驗證時間格式
 	rtInt, rtErr := strconv.ParseInt(requestTime, 10, 64)
 	if rtErr != nil {
 		return fmt.Errorf("incorrect format:\r\nrequestTime :%s", requestTime)
@@ -44,22 +44,6 @@ func CheckRequestTime(requestTime string) error {
 		return fmt.Errorf("expired:\r\nrequestTime :%s", requestTime)
 	}
 	return nil
-}
-
-func CheckAppSecret(operatorID, appSecret string) (*opf.OperatorProfile, error) {
-	dataOp, err := srvclient.OperatorClient.GetOperatorProfile(context.TODO(), &opf.GetOperatorProfileRequest{
-		OperatorID: operatorID,
-	})
-	if err != nil {
-		return nil, err
-	} else if dataOp.OperatorProfile == nil {
-		return nil, fmt.Errorf("not found:\r\noperatorID:%s\r\nappSecret :%s", operatorID, appSecret)
-	} else if dataOp.OperatorProfile.AppSecret != appSecret {
-		return nil, fmt.Errorf("\r\nrequest:%s\r\nserver :%s", appSecret, dataOp.OperatorProfile.AppSecret)
-	} else if dataOp.OperatorProfile.IsSingleWallet {
-		return nil, fmt.Errorf("%s IsSingleWallet", operatorID)
-	}
-	return dataOp.OperatorProfile, nil
 }
 
 func GetSignature(singSource string) string {

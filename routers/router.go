@@ -3,6 +3,7 @@ package routers
 import (
 	"firstweb/api"
 	"firstweb/logrus"
+	"firstweb/utils"
 	"log"
 	"path/filepath"
 	"time"
@@ -15,10 +16,11 @@ import (
 func Router() {
 	router := gin.New()
 	//router := gin.Default()
+	router.Use(utils.Timeout())
 	router.Use(logrus.Logrus())
 	router.RedirectFixedPath = true
 
-	// create limiter
+	// create limiter 一分鐘呼叫60次
 	// store := memory.NewStore()
 	//  rateLimit := viper.GetInt64("rate_limit")
 	//  rate := limiter.Rate{
@@ -28,6 +30,14 @@ func Router() {
 	//  }
 	// Alternatively, you can pass options to the limiter instance with several options.
 	//limiterInstance := limiter.New(store, rate, limiter.WithTrustForwardHeader(true))
+
+	//limitGroup := r.Group("/history", mgin.NewMiddleware(limiterInstance))
+
+	// @Api:History@
+	//limitGroup.POST("/transfer", api.HistoryTransfer)
+	//limitGroup.POST("/bet", api.HistoryBet)
+	//limitGroup.POST("/", api.PlayerCreate)
+	// @end
 
 	router.Use(cors.New(cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
@@ -51,13 +61,6 @@ func Router() {
 	router.POST("/history/bet", api.HistoryBet)
 	router.POST("/history/summary", api.HistorySummary)
 	router.POST("report/bet", api.ReportBet)
-	//limitGroup := r.Group("/history", mgin.NewMiddleware(limiterInstance))
-
-	// @Api:History@
-	//limitGroup.POST("/transfer", api.HistoryTransfer)
-	//limitGroup.POST("/bet", api.HistoryBet)
-	//limitGroup.POST("/", api.PlayerCreate)
-	// @end
 
 	router.HTMLRender = loadTemplates()
 
@@ -65,18 +68,6 @@ func Router() {
 
 		c.JSON(400, gin.H{"error": "Bad Request"})
 	})
-
-	//func loadTemplates() multitemplate.Renderer {
-	//	r := multitemplate.NewRenderer()
-	//includes, err := filepath.Glob("doc/page/*.html")
-	//	if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	//for _, include := range includes {
-	//r.AddFromFiles(filepath.Base(include), "doc/layout/base.html", include)
-	//}
-	//return r
 
 	router.Run(":9999")
 }
