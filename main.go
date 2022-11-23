@@ -2,12 +2,11 @@ package main
 
 import (
 	"firstweb/routers"
-	"fmt"
+	"firstweb/utils"
 )
 
 func main() {
-
 	routers.Router()
-	fmt.Println("can run")
-
+	go routers.RunRouter()
+	utils.Cleanup()
 }

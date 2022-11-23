@@ -3,8 +3,10 @@ package routers
 import (
 	"firstweb/api"
 	"firstweb/logrus"
-	"firstweb/utils"
+	"firstweb/model"
+
 	"log"
+	"net/http"
 	"path/filepath"
 	"time"
 
@@ -14,9 +16,10 @@ import (
 )
 
 func Router() {
+
 	router := gin.New()
 	//router := gin.Default()
-	router.Use(utils.Timeout())
+
 	router.Use(logrus.Logrus())
 	router.RedirectFixedPath = true
 
@@ -68,8 +71,19 @@ func Router() {
 
 		c.JSON(400, gin.H{"error": "Bad Request"})
 	})
+	//router.Run(":9999")
 
-	router.Run(":9999")
+	model.APIServer = http.Server{
+		Addr:    ":9999",
+		Handler: router,
+	}
+
+}
+func RunRouter() {
+
+	if err := model.APIServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("listen: %s\n", err)
+	}
 }
 
 func loadTemplates() multitemplate.Renderer {

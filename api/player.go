@@ -98,13 +98,16 @@ func PlayerLogin(c *gin.Context) {
 	req, err := http.NewRequest("POST", "https://uat-op-api.bpweg.com/player/login", strings.NewReader(values.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("signature", md5Str)
-	//設置超時
+
+	//設置客戶請求5秒超時
+
 	clt := &http.Client{
 		Timeout: time.Second * 1000,
 	}
 	r, _ := clt.Do(req)
 	if err != nil {
-		panic(err)
+		utils.ErrorResponse(c, 504, "Timeout", err)
+		return
 	}
 
 	//客戶端完成之後要關閉請求

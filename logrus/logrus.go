@@ -29,6 +29,7 @@ func Logger() *logrus.Logger {
 			fmt.Println(err.Error())
 		}
 	}
+
 	//寫入檔案
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
