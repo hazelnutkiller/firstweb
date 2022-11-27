@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gogo/protobuf/test/data"
 )
 
 var CardValues = map[string]string{
@@ -252,7 +253,7 @@ func HistoryTransfer(c *gin.Context) {
 	//容器轉換
 	count := 0
 	res := []TransferInfo{}
-	for _, val := range DataInfo {
+	for _, val := range data.Data {
 		res = append(res, ConvertToTransferInfo(val))
 		count++
 	}
