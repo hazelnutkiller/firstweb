@@ -5,7 +5,10 @@ import (
 )
 
 func main() {
+	routers.Timeout()
 	routers.Router()
+
 	go routers.RunRouter()
+
 	routers.Cleanup()
 }

@@ -3,16 +3,12 @@ module firstweb
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.44.145
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/sirupsen/logrus v1.9.0
 )
 
-require (
-	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
-)
+require github.com/google/go-cmp v0.5.8 // indirect
 
 require (
 	github.com/gin-contrib/cors v1.4.0
@@ -30,7 +26,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.1.0
+	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect

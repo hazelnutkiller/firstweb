@@ -28,6 +28,11 @@ type TransferInfo struct {
 	Balance      int64  `json:"balance"`
 }
 
+type DataInfo struct {
+	DataCount string         `json:"dataCount"`
+	Data      []TransferInfo `json:"data"`
+}
+
 type BetInfo struct {
 	BetID          string            `json:"betID"`
 	OperatorID     string            `json:"operatorID"`
@@ -46,30 +51,36 @@ type BetInfo struct {
 	GameType       string            `json:"gameType"`
 	GameRoundID    string            `json:"gameRoundID"`
 	IP             string            `json:"ip"`
+	UID            string            `json:"uid"`
+	RefID          string            `json:"RefID"`
 	CardResult     map[string]string `json:"cardresult"`
+	TransferType   string            `json:"transferType"`
+	TransferTime   int64             `json:"transferTime"`
+	TranAmount     int64             `json:"tranAmount"`
+	Balance        int64             `json:"balance"`
 }
 
-// func ConvertToTransferInfo(val *fundtran.FundTran) TransferInfo {
-// 	m := TransferInfo{
-// 		OperatorID:   val.OperatorID,
-// 		PlayerID:     val.OpPlayerID,
-// 		UID:          val.OpFundTranID,
-// 		RefID:        val.PgFundTranID,
-// 		TransferType: val.TranType.String(),
-// 		TransferTime: val.TranDate,
-// 		TranAmount:   val.TranAmount,
-// 		Balance:      val.PgBalAmount,
-// 	}
+func ConvertToTransferInfo(val BetInfo) TransferInfo {
+	m := TransferInfo{
+		OperatorID:   val.OperatorID,
+		PlayerID:     val.PlayerID,
+		UID:          val.UID,
+		RefID:        val.RefID,
+		TransferType: val.TransferType,
+		TransferTime: val.TransferTime,
+		TranAmount:   val.TranAmount,
+		Balance:      val.Balance,
+	}
 
-// 	switch val.TranType {
-// 	case fundtran.FundTranType_FUND_TO_PG:
-// 		m.TransferType = "deposit"
-// 	case fundtran.FundTranType_FUND_FROM_PG:
-// 		m.TransferType = "withdraw"
-// 	}
+	// switch val.TransferType {
+	// case
+	// 	m.TransferType = "deposit"
+	// case fundtran.FundTranType_FUND_FROM_PG:
+	// 	m.TransferType = "withdraw"
+	// }
 
-// 	return m
-// }
+	return m
+}
 
 func ConvertCardResult(in string) map[string]string {
 
@@ -146,6 +157,7 @@ func ConvertToBetInfo(val map[string]string) BetInfo {
 }
 
 //------------------------------------------------------------------------------------------------------------
+
 func HistoryTransfer(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -233,22 +245,37 @@ func HistoryTransfer(c *gin.Context) {
 	req.Header.Add("signature", md5Str)
 	clt := &http.Client{}
 	r, _ := clt.Do(req)
+
 	if err != nil {
 		panic(err)
 	}
-	//客戶端完成之後要關閉請求
+	//容器轉換
+	count := 0
+	res := []TransferInfo{}
+	for _, val := range DataInfo {
+		res = append(res, ConvertToTransferInfo(val))
+		count++
+	}
+
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-	var data interface{}
+	var data DataInfo
 	json.Unmarshal(body, &data)
-	c.JSON(200, data)
+	c.JSON(200, gin.H{"dataCount": count, "data": res})
 	//打印看返回的cjson是什麼
 	fmt.Println("data json:", data)
 
 }
 
 //---------------------------------------------------------------------------------------------------------
+type BetTranInfo struct {
+	TotalCount int       `json:"totalCount"`
+	DataCount  int       `json:"dataCount"`
+	Limit      int       `json:"limit"`
+	Data       []BetInfo `json:"data"`
+}
+
 func HistoryBet(c *gin.Context) {
 
 	// d := ConvertCardResult(`{"A1":"spade5","A2":"spade9","A3":"heartj","B1":"spade4","B2":"spade2","B3":""}`)
@@ -346,9 +373,14 @@ func HistoryBet(c *gin.Context) {
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-	var data interface{}
+	var data BetTranInfo
 	json.Unmarshal(body, &data)
-	c.JSON(200, data)
+	c.JSON(200, gin.H{
+		"DATACOUNT":  data.DataCount,
+		"TOTALCOUNT": data.TotalCount,
+		"LIMIT":      data.Limit,
+		"DATA":       data.Data,
+	})
 	//打印看返回的cjson是什麼
 	fmt.Println("data json:", data)
 }
