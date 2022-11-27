@@ -8,7 +8,10 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 )
 
-require github.com/google/go-cmp v0.5.8 // indirect
+require (
+	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
+)
 
 require (
 	github.com/gin-contrib/cors v1.4.0
