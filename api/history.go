@@ -27,9 +27,20 @@ type TransferInfo struct {
 	TranAmount   int64  `json:"tranAmount"`
 	Balance      int64  `json:"balance"`
 }
+
+type TransBig struct {
+	OperatorID   string `json:"OPERATORID"`
+	PlayerID     string `json:"PLAYERID"`
+	UID          string `json:"UID"`
+	RefID        string `json:"REFID"`
+	TransferType string `json:"TRANSFERTYPE"`
+	TransferTime int64  `json:"TRANSFERTIME"`
+	TranAmount   int64  `json:"TRANAMOUNT"`
+	Balance      int64  `json:"BALANCE"`
+}
 type DataInfo struct {
-	DataCount string         `json:"dataCount"`
-	Data      []TransferInfo `json:"data"`
+	DataCount string     `json:"dataCount"`
+	Data      []TransBig `json:"data"`
 }
 type BetInfo struct {
 	BetID          string            `json:"betID"`
@@ -58,27 +69,27 @@ type BetInfo struct {
 	Balance        int64             `json:"balance"`
 }
 
-func ConvertToTransferInfo(val BetInfo) TransferInfo {
-	m := TransferInfo{
-		OperatorID:   val.OperatorID,
-		PlayerID:     val.PlayerID,
-		UID:          val.UID,
-		RefID:        val.RefID,
-		TransferType: val.TransferType,
-		TransferTime: val.TransferTime,
-		TranAmount:   val.TranAmount,
-		Balance:      val.Balance,
-	}
+// func ConvertToTransferInfo(val TransferInfo) TransBig {
+// 	m := TransBig{
+// 		OPERATORID:   val.OperatorID,
+// 		PLAYERID:     val.PlayerID,
+// 		UID:          val.UID,
+// 		REFID:        val.RefID,
+// 		TRANSFERTYPE: val.TransferType,
+// 		TRANSFERTIME: val.TransferTime,
+// 		TRANAMOUNT:   val.TranAmount,
+// 		BALANCE:      val.Balance,
+// 	}
 
-	// switch val.TransferType {
-	// case
-	// 	m.TransferType = "deposit"
-	// case fundtran.FundTranType_FUND_FROM_PG:
-	// 	m.TransferType = "withdraw"
-	// }
+// switch val.TransferType {
+// case 1:
+// 	m.TransferType := "deposit"
+// case
+// 	m.TransferType := "withdraw"
+// }
 
-	return m
-}
+// 	return m
+// }
 
 func ConvertCardResult(in string) map[string]string {
 
@@ -255,12 +266,12 @@ func HistoryTransfer(c *gin.Context) {
 	json.Unmarshal(body, &data)
 	//容器轉換
 	// count := 0
-	// res := []TransferInfo{}
+	// res := []TransBig{}
 	// for _, val := range data.Data {
 	// 	res = append(res, ConvertToTransferInfo(val))
 	// 	count++
 	// }
-	c.JSON(200, gin.H{"dataCount": data, "data": data})
+	c.JSON(200, gin.H{"DATACOUNT": data, "DATA": data})
 	//打印看返回的cjson是什麼
 	fmt.Println("data json:", data)
 
