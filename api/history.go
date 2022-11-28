@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gogo/protobuf/test/data"
 )
 
 var CardValues = map[string]string{
@@ -28,12 +27,10 @@ type TransferInfo struct {
 	TranAmount   int64  `json:"tranAmount"`
 	Balance      int64  `json:"balance"`
 }
-
 type DataInfo struct {
 	DataCount string         `json:"dataCount"`
 	Data      []TransferInfo `json:"data"`
 }
-
 type BetInfo struct {
 	BetID          string            `json:"betID"`
 	OperatorID     string            `json:"operatorID"`
@@ -250,20 +247,20 @@ func HistoryTransfer(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	//容器轉換
-	count := 0
-	res := []TransferInfo{}
-	for _, val := range data.Data {
-		res = append(res, ConvertToTransferInfo(val))
-		count++
-	}
 
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
 	var data DataInfo
 	json.Unmarshal(body, &data)
-	c.JSON(200, gin.H{"dataCount": count, "data": res})
+	//容器轉換
+	// count := 0
+	// res := []TransferInfo{}
+	// for _, val := range data.Data {
+	// 	res = append(res, ConvertToTransferInfo(val))
+	// 	count++
+	// }
+	c.JSON(200, gin.H{"dataCount": data, "data": data})
 	//打印看返回的cjson是什麼
 	fmt.Println("data json:", data)
 

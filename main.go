@@ -1,14 +1,17 @@
 package main
 
 import (
-	"firstweb/routers"
+	//"firstweb/routers"
+	"firstweb/mysql"
 )
 
 func main() {
-	routers.Timeout()
-	routers.Router()
+	//routers.Timeout()
+	//routers.Router()
 
-	go routers.RunRouter()
+	//go routers.RunRouter()
 
-	routers.Cleanup()
+	//routers.Cleanup()
+	mysql.Mysql()
+
 }
