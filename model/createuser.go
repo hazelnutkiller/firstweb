@@ -12,7 +12,6 @@ import (
 // )
 
 //定義數據模型
-
 type Createdemo struct {
 	Id       int    `json:"id" form:"id"`
 	PlayerID string `json:"playerID" form:"playerID"`
@@ -20,6 +19,7 @@ type Createdemo struct {
 	Time     int    `json:"time" form:"time"`
 }
 
+//[創建玩家]
 func (create *Createdemo) CreatePlayer() int64 {
 	// db.Create(&create)
 	// return create
@@ -35,6 +35,31 @@ func (create *Createdemo) CreatePlayer() int64 {
 	return id
 }
 
+//[查詢玩家]
+
+func (p *Createdemo) GetRow() (create Createdemo, err error) {
+	create = Createdemo{}
+	err = config.SqlDB.QueryRow("Select id,playerID,currency,time from createdemo where id = ?", p.Id).Scan(&create.Id, &create.PlayerID, &create.Currency, &create.Time)
+	return
+}
+
+//[查询所有记录]
+
+func (create *Createdemo) GetRows() (creates []Createdemo, err error) {
+	rows, err := config.SqlDB.Query("select id,playerID,currency,time from createdemo")
+	for rows.Next() {
+		create := Createdemo{}
+		err := rows.Scan(&create.Id, &create.PlayerID, &create.Currency, &create.Time)
+		if err != nil {
+			log.Fatal(err)
+		}
+		creates = append(creates, create)
+	}
+	rows.Close()
+	return
+}
+
+//-------------------------http方法------------------------------------------------
 //func init() {
 //fmt.Println("modle.creat.init()")
 //調用它會連接app.go裡面
@@ -45,6 +70,10 @@ func (create *Createdemo) CreatePlayer() int64 {
 //db.AutoMigrate(&Createdemo{})
 //}
 
+//func (create *Createdemo) CreatePlayer() *Createdemo {
+// db.Create(&create)
+// return create
+//}
 // func GetAllPlayers() []Createdemo {
 // 	var Players []Createdemo
 // 	db.Find(&Players)
