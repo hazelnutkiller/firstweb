@@ -263,7 +263,8 @@ func HistoryTransfer(c *gin.Context) {
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
 	var data DataInfo
-	json.Unmarshal(body, &data)
+	//json.Unmarshal(body, &data)
+	json.Unmarshal([]byte(body), &data)
 	//容器轉換
 	// count := 0
 	// res := []TransBig{}

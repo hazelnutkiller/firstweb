@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"firstweb/model"
 	"firstweb/utils"
 	"fmt"
 	"io/ioutil"
@@ -59,18 +60,47 @@ func PlayerCreate(c *gin.Context) {
 	req.Header.Add("signature", md5Str)
 	clt := &http.Client{}
 	r, _ := clt.Do(req)
+
+	// //模型中Createdemo結構體對象傳入
+	// create := &model.Createdemo{}
+	// //拿到用戶的請求流
+	// utils.ParseRequestBody(c.Request, create)
+	// fmt.Println(create)
+	// //直接調用CreatePlayer去新增玩家
+	// newCreate := create.CreatePlayer()
+	// //把新創的玩家json化
+	// json.Marshal(newCreate)
+	//返回給調用端
+	// setSameHeader(w)
+	// w.WriteHeader(http.StatusOK)
+	//c.Write(r)
+
 	if err != nil {
 		panic(err)
 	}
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-	var data interface{}
-	json.Unmarshal(body, &data)
-	c.JSON(200, data)
-	//打印看返回的cjson是什麼
-	fmt.Println("data json:", data)
 
+	var data model.Createdemo
+
+	json.Unmarshal(body, &data)
+
+	create := &model.Createdemo{
+
+		PlayerID: data.PlayerID,
+		Currency: data.Currency,
+		Time:     data.Time,
+	}
+
+	id := create.CreatePlayer()
+	msg := fmt.Sprintf("insert successful %d", id)
+	c.JSON(http.StatusOK, gin.H{
+		"Msg":      msg,
+		"PlayerID": data.PlayerID,
+		"Currency": data.Currency,
+		"Time":     data.Time,
+	})
 }
 
 //-------------------------------------------------------------------------------------------------------------

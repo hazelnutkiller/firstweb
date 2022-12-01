@@ -1,8 +1,8 @@
 package main
 
 import (
-	"firstweb/routers"
 	//"firstweb/mysql"
+	"firstweb/routers"
 )
 
 func main() {

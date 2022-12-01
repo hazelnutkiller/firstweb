@@ -7,6 +7,19 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+//go get -u gorm.io/gorm
+//go get -u gorm.io/driver/mysql
+//go get -u github.com/gorilla/mux 路由組件
+//從docker下載mysql
+//docker pull xxxx(docker名)/xxxx(檔案名):latest
+//下載完成運行指令
+//docker run --name xxxx(檔案名) -e MYSQL_ROOT_PASSWORD=mindy1234 -p 3306:3306 -d --restart=always xxxx(docker名)/xxxx(檔案名):latest
+//訪問docker shell
+//docker exec -it xxxx(檔案名) bash -p
+//連線mysql指令 mysql -u root -p -h 127.0.0.1
+//mysql -u root -test -p -h 127.0.0.1
+//show databases;use PcschoolWeb;show tables;select * from employee;
+
 //將連線的資訊設定為常數
 const (
 	USERNAME = "root"
@@ -18,10 +31,10 @@ const (
 )
 
 // type Create_demo struct {
-// 	C_id     int
-// 	playerID string
-// 	currency string
-// 	time     int
+//   C_id     int
+//   playerID string
+//   currency string
+//   time     int
 // }
 
 func Mysql() {

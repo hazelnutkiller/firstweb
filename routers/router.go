@@ -42,12 +42,18 @@ func Router() {
 	//limitGroup.POST("/", api.PlayerCreate)
 	// @end
 
+	//跨來源資源共用
 	router.Use(cors.New(cors.Config{
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "signature"},
-		AllowAllOrigins:  true,
+		//允許的HTTP Method
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		//允許的Header 信息
+		AllowHeaders: []string{"Origin", "Content-Length", "Content-Type", "signature"},
+		//允許的domain
+		AllowAllOrigins: true,
+		//允許請求包含驗證憑證
 		AllowCredentials: false,
-		MaxAge:           12 * time.Hour,
+		//可被存取的時間
+		MaxAge: 12 * time.Hour,
 	}))
 
 	//set Logger
@@ -79,7 +85,8 @@ func Router() {
 	}
 
 }
-func RunRouter() {
+func RunRouter() { //把listen的功能用go routine的方式丟到背景去運行
+	//接到os強制關閉服務
 
 	if err := model.APIServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("listen: %s\n", err)
