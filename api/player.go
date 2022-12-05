@@ -81,11 +81,11 @@ func PlayerCreate(c *gin.Context) {
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-
+	//定義data使用的類別
 	var data model.Createdemo
 
 	json.Unmarshal(body, &data)
-
+	//帶入設定的結構
 	create := &model.Createdemo{
 
 		PlayerID: data.PlayerID,
@@ -94,7 +94,8 @@ func PlayerCreate(c *gin.Context) {
 	}
 
 	id := create.CreatePlayer()
-	msg := fmt.Sprintf("insert successful %d", id)
+	msg := fmt.Sprint("insert successful ", create.Id)
+	fmt.Println(id)
 	c.JSON(http.StatusOK, gin.H{
 		"Msg":      msg,
 		"PlayerID": data.PlayerID,
@@ -192,21 +193,6 @@ func PlayerDeposit(c *gin.Context) {
 		return
 	}
 	fmt.Println(gainBal)
-
-	//FundTran: &trn.FundTran{
-	//	PlayerID:     data.PlayerProfile.PlayerID,
-	//	OpPlayerID:   opPlayerID,
-	//	OperatorID:   operatorID,
-	//	BetID:        "", // ???
-	//	PgFundTranID: refID,
-	//	OpFundTranID: uid,
-	//	TranType:     trn.FundTranType_FUND_TO_PG,
-	//	TranDate:     tranDate,
-	//	TranAmount:   gainBal,
-	//	OpBalAmount:  0,
-	// PgBalAmount:  currentBal,
-	//	Reference: "", // ???
-	//	},
 
 	//存款簽名組成
 	st := (c.PostForm("amount") + c.PostForm("appSecret") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + uid)

@@ -3,10 +3,11 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 //整個全局控制數據庫對象的文件
@@ -29,37 +30,39 @@ func Config() {
 }
 
 //全局數據庫對象
-// var (
-// 	db *gorm.DB
-// )
+var (
+	db *gorm.DB
+)
 
-// func Connect() {
-// 	//通過connect連接數據庫
-// 	//用戶名：口令ip地址數據庫名
-// 	dsn := "root:mindy123@tcp(127.0.0.1)/firstweb?charset=utf8&parseTime=True&loc=Local"
-// 	_db, _err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-// 	if _err != nil {
-// 		panic(_err)
-// 	}
-// 	db = _db
-// }
+func Connect() {
+	//通過connect連接數據庫
+	//用戶名：口令ip地址數據庫名
+	dsn := "root:mindy123@tcp(127.0.0.1)/firstweb?charset=utf8&parseTime=True&loc=Local"
+	//通過這個方法連接數據庫
+	_db, _err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if _err != nil {
+		panic(_err)
+	}
+	//成功的話設置全局的數據庫db對象
+	db = _db
+}
 
-// //把模版級的數據對象返回給要使用他的函數
+//把模版級的數據對象返回給要使用他的函數
 
-// func GetDB() *gorm.DB {
-// 	return db
-// }
+func GetDB() *gorm.DB {
+	return db
+}
 
 var SqlDB *sql.DB
 
-func init() {
-	var err error
-	SqlDB, err = sql.Open("mysql", "root:mindy123@tcp(127.0.0.1)/firstweb?charset=utf8&parseTime=True&loc=Local")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	err = SqlDB.Ping()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-}
+// func init() {
+// 	var err error
+// 	SqlDB, err = sql.Open("mysql", "root:mindy123@tcp(127.0.0.1)/firstweb?charset=utf8&parseTime=True&loc=Local")
+// 	if err != nil {
+// 		log.Fatal(err.Error())
+// 	}
+// 	err = SqlDB.Ping()
+// 	if err != nil {
+// 		log.Fatal(err.Error())
+// 	}
+// }

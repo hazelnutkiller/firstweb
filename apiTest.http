@@ -5,10 +5,15 @@ POST   {{server}}/Check
 Content-Content-Type: application/x-www-form-urlencoded
 
 {
-    "title":""
-    "price":
-    "author":""
+    "success":true
+     "version": 1.2  
 }
 
-DELETE  {{}}
+POST   {{server}}/player/create
+Content-Content-Type: application/x-www-form-urlencoded
+{             
+    "playerID": "mike",     		     
+    "currency": "RMB",      		     
+     "time": 1627884739      		     
+}
 

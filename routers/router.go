@@ -1,9 +1,13 @@
 package routers
 
+//路由註冊
+
 import (
 	"firstweb/api"
+	"firstweb/controllers"
 	"firstweb/logrus"
 	"firstweb/model"
+	"fmt"
 
 	"log"
 	"net/http"
@@ -13,6 +17,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
 func Router() {
@@ -104,4 +109,18 @@ func loadTemplates() multitemplate.Renderer {
 		r.AddFromFiles(filepath.Base(include), "doc/layout/base.html", include)
 	}
 	return r
+}
+
+//處理 /資源
+
+func index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hello go world")
+}
+
+//指定一個路由函數 接收路由對象
+var RegisterRoutes = func(router *mux.Router) {
+	router.HandleFunc("/", index).Methods("POST")
+	//router.HandleFunc("/books", controllers.CreateBook).Methods("POST")
+	router.HandleFunc("/books", controllers.ListBook).Methods("GET")
+	router.HandleFunc("/books{id}", controllers.DeleteBook).Methods("DELETE")
 }

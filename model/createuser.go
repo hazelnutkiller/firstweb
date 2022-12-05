@@ -2,14 +2,16 @@ package model
 
 import (
 	"firstweb/config"
-	"fmt"
+
 	"log"
+
+	"gorm.io/gorm"
 )
 
 //數據庫對象
-// var (
-// 	db *gorm.DB
-// )
+var (
+	db *gorm.DB
+)
 
 //定義數據模型
 type Createdemo struct {
@@ -19,21 +21,34 @@ type Createdemo struct {
 	Time     int    `json:"time" form:"time"`
 }
 
-//[創建玩家]
-func (create *Createdemo) CreatePlayer() int64 {
-	// db.Create(&create)
-	// return create
-	fmt.Println(create.Currency)
-	rs, err := config.SqlDB.Exec("INSERT into createdemo (id,playerID, currency, time) value (?,?,?,?)", create.Id, create.PlayerID, create.Currency, create.Time)
-	if err != nil {
-		log.Fatal(err)
-	}
-	id, err := rs.LastInsertId()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return id
+func init() {
+	//fmt.Println("modle.creat.init()")
+	//調用它會連接app.go裡面
+	config.Connect()
+	//拿到全局數據庫對象
+	db = config.GetDB()
+	//往數據庫裡更新schema
+	db.AutoMigrate(&Createdemo{})
 }
+
+func (create *Createdemo) CreatePlayer() *Createdemo {
+	db.Create(&create)
+	return create
+}
+
+//[創建玩家]
+// func (create *Createdemo) CreatePlayer() int64 {
+
+// 	rs, err := config.SqlDB.Exec("INSERT into createdemo (id, playerID, currency, time) value (?,?,?,?)", create.Id, create.PlayerID, create.Currency, create.Time)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	id, err := rs.LastInsertId()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	return id
+// }
 
 //[查詢玩家]
 
@@ -60,20 +75,12 @@ func (create *Createdemo) GetRows() (creates []Createdemo, err error) {
 }
 
 //-------------------------http方法------------------------------------------------
-//func init() {
-//fmt.Println("modle.creat.init()")
-//調用它會連接app.go裡面
-//config.Connect()
-//拿到全局數據庫對象
-//db = config.GetDB()
-//往數據庫裡更新schema
-//db.AutoMigrate(&Createdemo{})
-//}
 
 //func (create *Createdemo) CreatePlayer() *Createdemo {
 // db.Create(&create)
 // return create
 //}
+
 // func GetAllPlayers() []Createdemo {
 // 	var Players []Createdemo
 // 	db.Find(&Players)
