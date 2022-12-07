@@ -4,8 +4,16 @@ package controllers
 //接收路由響應 讀取數據庫的地方 連接到數據庫模型
 
 import (
+	"database/sql"
 	"encoding/json"
+	"firstweb/model"
+	"fmt"
+	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
 //生成標準返回結構類型
@@ -17,7 +25,7 @@ type ResponseResult struct {
 //設置共同頭部信息
 
 func setSameHeader(w http.ResponseWriter) {
-	w.Header().Set("content-Type", "application/json")
+	w.Header().Set("content-Type", "application/x-www-form-urlencoded")
 }
 
 //定義各個處理函數
@@ -40,14 +48,41 @@ func setSameHeader(w http.ResponseWriter) {
 // 	})
 // }
 
-func ListBook(w http.ResponseWriter, r *http.Request) {
+func GetPlayer(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	//首先拿到url裡的playerid
+	createId := vars["id"]
+	//類型轉換
+	id, err := strconv.ParseInt(createId, 0, 0)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		//沒發錯的話調用model中的方法
+		create, _ := model.GetPlayer(id)
+		res, err := json.Marshal(create)
+		if err != nil {
+			fmt.Println(err)
+		}
+		setSameHeader(w)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	}
+}
+
+//------------------------get ALL data from mysql-------------------
+func Listplayers(w http.ResponseWriter, r *http.Request) {
+	players := model.GetAllPlayers()
+	res, err := json.Marshal(players)
+	if err != nil {
+		fmt.Println(err)
+	}
 	//設置響應頭
 	setSameHeader(w)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ResponseResult{
-		Result: "ListBook",
-	})
+	w.Write(res)
 }
+
+//---------------------------------------------------------------------
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	//設置響代碼
@@ -58,3 +93,57 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 		Result: "DeleteBook",
 	})
 }
+
+//----------------------------------get data from mysql-------------------------------
+// localhost:9999/user/get/2
+var db *sql.DB
+
+func init() {
+	log.Println(">>>> get database connection start <<<<")
+	db = &sql.DB{}
+}
+
+func QueryById(context *gin.Context) {
+	println(">>>> get user by id and name action start <<<<")
+
+	// 獲取請求引數
+	id := context.Param("id")
+
+	// 查詢資料庫
+	rows := db.QueryRow("select player_id,currency,time,id from createdemos where id = ? ", id)
+
+	var user model.Createdemo
+	//var Id uint16
+	//var address string
+	//var age uint8
+	//var mobile string
+	//var sex string
+	err := rows.Scan(&user.PlayerID, &user.Currency, &user.Time, &user.Id)
+
+	checkError(err)
+
+	checkError(err)
+	context.JSON(200, gin.H{
+		"result": user,
+	})
+}
+func checkError(e error) {
+	if e != nil {
+		log.Fatal(e)
+	}
+}
+
+//---------------------------------------------------------------------------------------------
+func GetOne(c *gin.Context) {
+	ids := c.Param("id")
+	id, _ := strconv.Atoi(ids)
+	p := model.Createdemo{
+		Id: int64(id),
+	}
+	rs, _ := p.GetRow()
+	c.JSON(http.StatusOK, gin.H{
+		"result": rs,
+	})
+}
+
+//--------------------------------------------------------------------------------------------

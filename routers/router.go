@@ -22,8 +22,19 @@ import (
 
 func Router() {
 
-	router := gin.New()
-	//router := gin.Default()
+	//router := gin.New()
+	router := gin.Default()
+
+	//----------------------------------get data from mysql--------------------------------
+	router.GET("/hello", func(context *gin.Context) {
+		log.Println(">>>> hello gin start <<<<")
+		context.JSON(200, gin.H{
+			"code":    200,
+			"success": true,
+			"data":    "Hello LXR！",
+		})
+	})
+	//---------------------------------------------------------------------------------------
 
 	router.Use(logrus.Logrus())
 	router.RedirectFixedPath = true
@@ -82,7 +93,6 @@ func Router() {
 
 		c.JSON(400, gin.H{"error": "Bad Request"})
 	})
-	//router.Run(":9999")
 
 	model.APIServer = http.Server{
 		Addr:    ":9999",
@@ -120,7 +130,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 //指定一個路由函數 接收路由對象
 var RegisterRoutes = func(router *mux.Router) {
 	router.HandleFunc("/", index).Methods("POST")
-	//router.HandleFunc("/books", controllers.CreateBook).Methods("POST")
-	router.HandleFunc("/books", controllers.ListBook).Methods("GET")
-	router.HandleFunc("/books{id}", controllers.DeleteBook).Methods("DELETE")
+	router.HandleFunc("/listplayers", controllers.Listplayers).Methods("GET")
+	router.HandleFunc("/get/{id}", controllers.GetPlayer).Methods("GET")
+
+	router.HandleFunc("/books/{id}", controllers.DeleteBook).Methods("DELETE")
+
 }

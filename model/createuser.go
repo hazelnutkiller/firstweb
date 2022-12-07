@@ -15,7 +15,7 @@ var (
 
 //定義數據模型
 type Createdemo struct {
-	Id       int    `json:"id" form:"id"`
+	Id       int64  `json:"id" form:"id"`
 	PlayerID string `json:"playerID" form:"playerID"`
 	Currency string `json:"currency" form:"currency"`
 	Time     int    `json:"time" form:"time"`
@@ -36,6 +36,14 @@ func (create *Createdemo) CreatePlayer() *Createdemo {
 	return create
 }
 
+//[查詢玩家]
+
+func (p *Createdemo) GetRow() (create Createdemo, err error) {
+	create = Createdemo{}
+	err = config.SqlDB.QueryRow("Select id,player_id,currency,time from createdemos where id = ?", p.Id).Scan(&create.Id, &create.PlayerID, &create.Currency, &create.Time)
+	return
+}
+
 //[創建玩家]
 // func (create *Createdemo) CreatePlayer() int64 {
 
@@ -49,14 +57,6 @@ func (create *Createdemo) CreatePlayer() *Createdemo {
 // 	}
 // 	return id
 // }
-
-//[查詢玩家]
-
-func (p *Createdemo) GetRow() (create Createdemo, err error) {
-	create = Createdemo{}
-	err = config.SqlDB.QueryRow("Select id,playerID,currency,time from createdemo where id = ?", p.Id).Scan(&create.Id, &create.PlayerID, &create.Currency, &create.Time)
-	return
-}
 
 //[查询所有记录]
 
@@ -87,14 +87,21 @@ func (create *Createdemo) GetRows() (creates []Createdemo, err error) {
 // 	return Players
 // }
 
-// func GetPlayers(ID int64) (*Createdemo, *gorm.DB) {
-// 	var create Createdemo
-// 	db.Where("ID=?", ID).Find(&create)
-// 	return &create, db
-// }
-
 // func DeletePlayers(ID int64) Createdemo {
 // 	var create Createdemo
 // 	db.Where("ID=?", ID).Delete(&create)
 // 	return create
 // }
+
+func GetPlayer(id int64) (*Createdemo, *gorm.DB) {
+	var create Createdemo
+	//對象映射方式
+	db.Where("ID=?", id).Find(&create)
+	return &create, db
+}
+
+func GetAllPlayers() []Createdemo {
+	var createdemos []Createdemo
+	db.Find(&createdemos)
+	return createdemos
+}
