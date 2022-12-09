@@ -22,19 +22,8 @@ import (
 
 func Router() {
 
-	//router := gin.New()
-	router := gin.Default()
-
-	//----------------------------------get data from mysql--------------------------------
-	router.GET("/hello", func(context *gin.Context) {
-		log.Println(">>>> hello gin start <<<<")
-		context.JSON(200, gin.H{
-			"code":    200,
-			"success": true,
-			"data":    "Hello LXR！",
-		})
-	})
-	//---------------------------------------------------------------------------------------
+	router := gin.New()
+	//router := gin.Default()
 
 	router.Use(logrus.Logrus())
 	router.RedirectFixedPath = true
@@ -132,7 +121,6 @@ var RegisterRoutes = func(router *mux.Router) {
 	router.HandleFunc("/", index).Methods("POST")
 	router.HandleFunc("/listplayers", controllers.Listplayers).Methods("GET")
 	router.HandleFunc("/get/{id}", controllers.GetPlayer).Methods("GET")
-
-	router.HandleFunc("/books/{id}", controllers.DeleteBook).Methods("DELETE")
+	router.HandleFunc("/delete/{id}", controllers.Deleteplayer).Methods("DELETE")
 
 }

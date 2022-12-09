@@ -104,9 +104,7 @@ func PlayerCreate(c *gin.Context) {
 	})
 }
 
-//----------------------------------------mysql 取得玩家-------------------------------------------------------
-
-//-------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 func PlayerLogin(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -212,11 +210,23 @@ func PlayerDeposit(c *gin.Context) {
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-	var data interface{}
+
+	var data model.Createdemo
+	data.PlayerID = opPlayerID
 	json.Unmarshal(body, &data)
-	c.JSON(200, data)
-	//打印看返回的cjson是什麼
-	fmt.Println("data json:", data)
+	//帶入設定的結構
+	// updateplayer := &model.Createdemo{
+	// 	Balance: data.Balance,
+	// 	RefID:   data.RefID,
+	// }
+	go model.UpdataPlayer(&data)
+
+	c.JSON(http.StatusOK, gin.H{
+		"Balance":  data.Balance,
+		"Currency": data.Currency,
+		"Time":     data.Time,
+		"RefID":    data.RefID,
+	})
 
 }
 

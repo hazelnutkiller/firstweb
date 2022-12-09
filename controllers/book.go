@@ -4,15 +4,12 @@ package controllers
 //接收路由響應 讀取數據庫的地方 連接到數據庫模型
 
 import (
-	"database/sql"
 	"encoding/json"
 	"firstweb/model"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
 )
 
@@ -48,6 +45,7 @@ func setSameHeader(w http.ResponseWriter) {
 // 	})
 // }
 
+//------------------------get one data from mysql-------------------
 func GetPlayer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	//首先拿到url裡的playerid
@@ -82,68 +80,104 @@ func Listplayers(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-//---------------------------------------------------------------------
+//-------------------------delete data from mysql--------------------------------------------
 
-func DeleteBook(w http.ResponseWriter, r *http.Request) {
-	//設置響代碼
-	setSameHeader(w)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ResponseResult{
-		//返回內容
-		Result: "DeleteBook",
-	})
+func Deleteplayer(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	//通過url傳遞過來的id
+	createId := vars["id"]
+	//進行數字解析
+	id, err := strconv.ParseInt(createId, 0, 0)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		//沒發錯的話調用model中的方法
+		create := model.DeletePlayer(id)
+		res, _ := json.Marshal(create)
+		setSameHeader(w)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	}
 }
 
-//----------------------------------get data from mysql-------------------------------
+//------------------------------update date from mysql----------------------
+// func Updateplayer(w http.ResponseWriter, r *http.Request) {
+// 	var updateplayer = &model.Createdemo{}
+// 	//通過請求流接收到body把送過來的請求數據放到updateplayer這個結構體當中
+// 	utils.ParseRequestBody(r, updateplayer)
+// 	vars := mux.Vars(r)
+// 	//拿到id
+// 	updateId := vars["playerID"]
+// 	//整形轉換
+// 	playerID, err := strconv.ParseInt(updateId, 0, 0)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	} else {
+// 		//從數據庫中讀到指定玩家
+// 		update, db := model.UpdataPlayer(updateId)
+// 		if updateplayer.PlayerID != "" {
+// 			update.PlayerID = updateplayer.PlayerID
+// 		}
+
+// 		fmt.Println(playerID)
+// 		db.Save(&update)
+// 		res, _ := json.Marshal(update)
+// 		setSameHeader(w)
+// 		w.WriteHeader(http.StatusOK)
+// 		w.Write(res)
+// 	}
+// }
+
+//----------------------------------get data from mysql 方法1-------------------------------
 // localhost:9999/user/get/2
-var db *sql.DB
+// var db *sql.DB
 
-func init() {
-	log.Println(">>>> get database connection start <<<<")
-	db = &sql.DB{}
-}
+// func init() {
+// 	log.Println(">>>> get database connection start <<<<")
+// 	db = &sql.DB{}
+// }
 
-func QueryById(context *gin.Context) {
-	println(">>>> get user by id and name action start <<<<")
+// func QueryById(context *gin.Context) {
+// 	println(">>>> get user by id and name action start <<<<")
 
-	// 獲取請求引數
-	id := context.Param("id")
+// 	// 獲取請求引數
+// 	id := context.Param("id")
 
-	// 查詢資料庫
-	rows := db.QueryRow("select player_id,currency,time,id from createdemos where id = ? ", id)
+// 	// 查詢資料庫
+// 	rows := db.QueryRow("select player_id,currency,time,id from createdemos where id = ? ", id)
 
-	var user model.Createdemo
-	//var Id uint16
-	//var address string
-	//var age uint8
-	//var mobile string
-	//var sex string
-	err := rows.Scan(&user.PlayerID, &user.Currency, &user.Time, &user.Id)
+// 	var user model.Createdemo
+// 	//var Id uint16
+// 	//var address string
+// 	//var age uint8
+// 	//var mobile string
+// 	//var sex string
+// 	err := rows.Scan(&user.PlayerID, &user.Currency, &user.Time, &user.Id)
 
-	checkError(err)
+// 	checkError(err)
 
-	checkError(err)
-	context.JSON(200, gin.H{
-		"result": user,
-	})
-}
-func checkError(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
-}
+// 	checkError(err)
+// 	context.JSON(200, gin.H{
+// 		"result": user,
+// 	})
+// }
+// func checkError(e error) {
+// 	if e != nil {
+// 		log.Fatal(e)
+// 	}
+// }
 
-//---------------------------------------------------------------------------------------------
-func GetOne(c *gin.Context) {
-	ids := c.Param("id")
-	id, _ := strconv.Atoi(ids)
-	p := model.Createdemo{
-		Id: int64(id),
-	}
-	rs, _ := p.GetRow()
-	c.JSON(http.StatusOK, gin.H{
-		"result": rs,
-	})
-}
+//-----------------------------------get data from mysql 方法2---------------------------------
+// func GetOne(c *gin.Context) {
+// 	ids := c.Param("id")
+// 	id, _ := strconv.Atoi(ids)
+// 	p := model.Createdemo{
+// 		Id: int64(id),
+// 	}
+// 	rs, _ := p.GetRow()
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"result": rs,
+// 	})
+// }
 
 //--------------------------------------------------------------------------------------------
