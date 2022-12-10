@@ -4,6 +4,8 @@ import (
 	"firstweb/config"
 	"time"
 
+	"google.golang.org/grpc/balancer"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +22,19 @@ type Createdemo struct {
 	Time      int            `json:"time" form:"time"`
 	Balance   int64          `json:"balance" form:"balance"`
 	RefID     string         `json:"refID" form:"refID"`
+	Deposit   string         `json:"deposit" form:"deposit"`
+	Withdraw  int64          `json:"withdraw" form:"withdraw"`
+	CreatedAt time.Time      `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type Userform struct {
+	ID        int64          `json:"Id" form:"Id"`
+	PlayerID  string         `json:"playerID" form:"playerID"`
+	Currency  string         `json:"currency" form:"currency"`
+	Time      int            `json:"time" form:"time"`
+	Balance   int64          `json:"balance" form:"balance"`
 	CreatedAt time.Time      `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"created_at,omitempty"`
 	UpdatedAt *time.Time     `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -33,14 +48,21 @@ func init() {
 	db = config.GetDB()
 	//往數據庫裡更新schema
 	db.AutoMigrate(&Createdemo{})
+	db.AutoMigrate(&Userform{})
 }
 
 //-------------------------小馬gorm方法------------------------------------------------
-func (create *Createdemo) CreatePlayer() *Createdemo {
+//[創建玩家]
+func (create *Userform) CreatePlayer() *Userform {
 	db.Create(&create)
 	return create
 }
+func (add *Createdemo) Addplayer() *Createdemo {
+	db.Create(&add)
+	return add
+}
 
+//[取得玩家]----------------------------------------------------
 func GetPlayer(id int64) (*Createdemo, *gorm.DB) {
 	var create Createdemo
 	//對象映射方式
@@ -48,25 +70,20 @@ func GetPlayer(id int64) (*Createdemo, *gorm.DB) {
 	return &create, db
 }
 
-func UpdataPlayer(update *Createdemo) (*Createdemo, *gorm.DB) {
-
-	db.Where("player_id=?", update.PlayerID).Update("balance", update.Balance)
-	return update, db
+//[增減款項]-----------------------------------------------
+func (addtrans *Createdemo) Addtrans() *Createdemo {
+	db.Create(&addtrans)
+	return addtrans
 }
 
-// 	//對象映射方式
-// 	if err = db.Where("player_id=?", m.PlayerID).Update("balance", m.Balance).Error; err != nil {
-// 		return err
-// 	  }
-
-// }
-
+//[取得所有玩家]----------------------------------------------------
 func GetAllPlayers() []Createdemo {
 	var createdemos []Createdemo
 	db.Find(&createdemos)
 	return createdemos
 }
 
+//[軟刪除玩家]----------------------------------------------------
 func DeletePlayer(id int64) Createdemo {
 	var create Createdemo
 	//調用where這個方法傳入id並且把玩家的實例付給create結構體對象
@@ -74,6 +91,33 @@ func DeletePlayer(id int64) Createdemo {
 	//
 	return create
 }
+
+func Updata(playerID string) *Userform   {
+	dsn := "root:mindy123@tcp(127.0.0.1)/firstweb?charset=utf8&parseTime=True&loc=Local"
+	conn, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	conn.Debug().Model(&Userform{}).Where("player_id=?", playerID ).Update("balance", .Balance)
+}
+
+// func Updata(playerID string) (*Userform, *gorm.DB) {
+// 	var update Userform
+// 	//調用where這個方法傳入id並且把玩家的實例付給create結構體對象
+// 	db.Where("player_id=?", update.PlayerID).Update("balance", update.Balance)
+// 	//
+// 	return &update, db
+// }
+
+//修改
+// func (person *Userform) Update() int64 {
+// 	rs, err := db.Exec("update userform set balance = ? where player_id = ?", person.Balance, person.PlayerID)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	rows, err := rs.RowsAffected()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	return rows
+// }
 
 //-----------------------------------gin方法-------------------------------------------------
 

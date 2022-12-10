@@ -61,7 +61,7 @@ func PlayerCreate(c *gin.Context) {
 	clt := &http.Client{}
 	r, _ := clt.Do(req)
 
-	// //模型中Createdemo結構體對象傳入
+	// //模型中serform結構體對象傳入
 	// create := &model.Createdemo{}
 	// //拿到用戶的請求流
 	// utils.ParseRequestBody(c.Request, create)
@@ -82,19 +82,26 @@ func PlayerCreate(c *gin.Context) {
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
 	//定義data使用的類別
-	var data model.Createdemo
+	var data model.Userform
 
 	json.Unmarshal(body, &data)
-	//帶入設定的結構
-	create := &model.Createdemo{
-
+	//帶入設定的結構帶進兩個表格
+	create := &model.Userform{
 		PlayerID: data.PlayerID,
 		Currency: data.Currency,
 		Time:     data.Time,
 	}
 
+	addtrans := &model.Createdemo{
+		PlayerID: data.PlayerID,
+		Currency: data.Currency,
+		Time:     data.Time,
+	}
+
+	Id := addtrans.Addplayer()
+	fmt.Println(Id)
 	id := create.CreatePlayer()
-	msg := fmt.Sprint("insert successful ", create.Id)
+	msg := fmt.Sprint("insert successful ", create.ID)
 	fmt.Println(id)
 	c.JSON(http.StatusOK, gin.H{
 		"Msg":      msg,
@@ -214,12 +221,26 @@ func PlayerDeposit(c *gin.Context) {
 	var data model.Createdemo
 	data.PlayerID = opPlayerID
 	json.Unmarshal(body, &data)
-	//帶入設定的結構
-	// updateplayer := &model.Createdemo{
-	// 	Balance: data.Balance,
-	// 	RefID:   data.RefID,
-	// }
-	go model.UpdataPlayer(&data)
+
+	addtrans := &model.Createdemo{
+		Deposit:  amount,
+		Balance:  data.Balance,
+		PlayerID: data.PlayerID,
+		Currency: data.Currency,
+		Time:     data.Time,
+		RefID:    data.RefID,
+	}
+
+	updates := &model.Userform{
+
+		PlayerID: data.PlayerID,
+		Balance:  data.Balance,
+	}
+
+	id := addtrans.Addtrans()
+	msg := fmt.Sprint("insert successful ", addtrans.Balance)
+	fmt.Println(msg)
+	fmt.Println(id)
 
 	c.JSON(http.StatusOK, gin.H{
 		"Balance":  data.Balance,
