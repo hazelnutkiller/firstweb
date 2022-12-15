@@ -4,8 +4,6 @@ import (
 	"firstweb/config"
 	"time"
 
-	"google.golang.org/grpc/balancer"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -83,7 +81,7 @@ func GetAllPlayers() []Createdemo {
 	return createdemos
 }
 
-//[軟刪除玩家]----------------------------------------------------
+//[軟刪除表格Createdemo]----------------------------------------------------
 func DeletePlayer(id int64) Createdemo {
 	var create Createdemo
 	//調用where這個方法傳入id並且把玩家的實例付給create結構體對象
@@ -92,10 +90,14 @@ func DeletePlayer(id int64) Createdemo {
 	return create
 }
 
-func Updata(playerID string) *Userform   {
-	dsn := "root:mindy123@tcp(127.0.0.1)/firstweb?charset=utf8&parseTime=True&loc=Local"
-	conn, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	conn.Debug().Model(&Userform{}).Where("player_id=?", playerID ).Update("balance", .Balance)
+//[更新餘額]-------------------------------------------------------
+func UpdataBalance(w *Userform) (err error) {
+
+	if err = db.Model(&w).Where("player_id=?", w.PlayerID).Update("balance", w.Balance).Error; err != nil {
+		return err
+	}
+	return nil
+
 }
 
 // func Updata(playerID string) (*Userform, *gorm.DB) {
