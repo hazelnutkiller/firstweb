@@ -1,6 +1,8 @@
 package model
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"firstweb/config"
 	"time"
 
@@ -47,6 +49,8 @@ func init() {
 	//往數據庫裡更新schema
 	db.AutoMigrate(&Createdemo{})
 	db.AutoMigrate(&Userform{})
+	db.AutoMigrate(&BetInfo1{})
+
 }
 
 //-------------------------小馬gorm方法------------------------------------------------
@@ -160,3 +164,85 @@ func UpdataBalance(w *Userform) (err error) {
 // 	rows.Close()
 // 	return
 // }
+
+//-------------------------betrecord---------------------------------------------------..
+
+//定義投注記錄數據模型
+
+type BetInfo1 struct {
+	Id             int64  `json:"id" form:"id"`
+	BetID          string `gorm:"betID" json:"betID"`
+	OperatorID     string `gorm:"operatorID" json:"operatorID" `
+	PlayerID       string `gorm:"playerID" json:"playerID"`
+	WEPlayerID     string `gorm:"wEPlayerID" json:"wEPlayerID"`
+	BetDateTime    int64  `gorm:"betDateTime" json:"betDateTime"`
+	SettlementTime int64  `gorm:"settlementTime" json:"settlementTime"`
+	BetStatus      string `gorm:"betStatus" json:"betStatus"`
+	BetCode        string `gorm:"betCode" json:"betCode"`
+	ValidBetAmount int64  `gorm:"validBetAmount" json:"validBetAmount"`
+	GameResult     string `gorm:"gameResult" json:"gameResult"`
+	//Device         string `json:"device" form:"device"`
+	BetAmount     int64 `gorm:"betAmount" json:"betAmount"`
+	WinlossAmount int64 `gorm:"winlossAmount" json:"winlossAmount"`
+	//Category       string `json:"category" form:"category"`
+	GameType    string `gorm:"gameType" json:"gameType"`
+	GameRoundID string `gorm:"gameRoundID" json:"gameRoundID"`
+	//IP             string `json:"ip" form:"ip"`
+	//UID   string `json:"uid" form:"uid"`
+	//RefID string `json:"RefID"  form:"RefID"`
+	//CardResult     map[string]string `json:"cardresult"`
+	//TransferType   string            `json:"transferType"`
+	//TransferTime   int64             `json:"transferTime"`
+	//TranAmount     int64             `json:"tranAmount"`
+	//Balance        int64             `json:"balance"`
+	CreatedAt time.Time      `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type Data []string
+
+type BetInfo struct {
+	Data       []BetInfo1 `json:"data" form:"data"`
+	TotalCount int        `json:"totalCount" form:"totalCount"`
+	DataCount  int        `json:"dataCount" form:"dataCount"`
+	Id         int64      `json:"id" form:"id"`
+	// BetID          string            `json:"betID" form:"betID"`
+	// OperatorID     string            `json:"operatorID" form:"operatorID"`
+	// PlayerID       string            `json:"playerID" form:"playerID"`
+	// WEPlayerID     string            `json:"wEPlayerID" form:"wEPlayerID"`
+	// SettlementTime int64             `json:"settlementTime" form:"settlementTime"`
+	// BetStatus      string            `json:"betStatus" form:"betStatus"`
+	// BetCode        string            `json:"betCode" form:"betCode"`
+	// ValidBetAmount int64             `json:"validBetAmount" form:"validBetAmount"`
+	// GameResult     string            `json:"gameResult" form:"gameResult"`
+	// Device         string            `json:"device" form:"device"`
+	// BetAmount      int64             `json:"betAmount" form:"betAmount"`
+	// WinlossAmount  int64             `json:"winlossAmount" form:"winlossAmount"`
+	// Category       string            `json:"category" form:"category"`
+	// GameType       string            `json:"gameType" form:"gameType"`
+	// GameRoundID    string            `json:"gameRoundID" form:"gameRoundID"`
+	// IP             string            `json:"ip" form:"ip"`
+	// UID            string            `json:"uid" form:"uid"`
+	// RefID          string            `json:"RefID"  form:"RefID"`
+	// CardResult     map[string]string `json:"cardresult"`
+	// TransferType   string            `json:"transferType"`
+	// TransferTime   int64             `json:"transferTime"`
+	// TranAmount     int64             `json:"tranAmount"`
+	// Balance        int64             `json:"balance"`
+}
+
+func (t *Data) Scan(value interface{}) error {
+	bytesValue, _ := value.([]byte)
+	return json.Unmarshal(bytesValue, t)
+}
+
+func (t Data) Value() (driver.Value, error) {
+	return json.Marshal(t)
+}
+
+//[投注記錄新增進db]
+func (betrecord *BetInfo1) BetRecord() *BetInfo1 {
+	db.Create(&betrecord)
+	return betrecord
+}

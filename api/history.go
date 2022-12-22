@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"firstweb/model"
 	"firstweb/utils"
 	"fmt"
 	"io/ioutil"
@@ -9,8 +10,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 var CardValues = map[string]string{
@@ -28,49 +31,39 @@ type TransferInfo struct {
 	Balance      int64  `json:"balance"`
 }
 
-type TransBig struct {
-	OperatorID   string `json:"OPERATORID"`
-	PlayerID     string `json:"PLAYERID"`
-	UID          string `json:"UID"`
-	RefID        string `json:"REFID"`
-	TransferType string `json:"TRANSFERTYPE"`
-	TransferTime int64  `json:"TRANSFERTIME"`
-	TranAmount   int64  `json:"TRANAMOUNT"`
-	Balance      int64  `json:"BALANCE"`
-}
-type DataInfo struct {
-	DataCount string     `json:"dataCount"`
-	Data      []TransBig `json:"data"`
-}
 type BetInfo struct {
-	BetID          string            `json:"betID"`
-	OperatorID     string            `json:"operatorID"`
-	PlayerID       string            `json:"playerID"`
-	WEPlayerID     string            `json:"wePlayerID"`
-	BetDateTime    int64             `json:"betDateTime"`
-	SettlementTime int64             `json:"settlementTime"`
-	BetStatus      string            `json:"betStatus"`
-	BetCode        string            `json:"betCode"`
-	ValidBetAmount int64             `json:"validBetAmount"`
-	GameResult     string            `json:"gameResult"`
-	Device         string            `json:"device"`
-	BetAmount      int64             `json:"betAmount"`
-	WinlossAmount  int64             `json:"winlossAmount"`
-	Category       string            `json:"category"`
-	GameType       string            `json:"gameType"`
-	GameRoundID    string            `json:"gameRoundID"`
-	IP             string            `json:"ip"`
-	UID            string            `json:"uid"`
-	RefID          string            `json:"RefID"`
-	CardResult     map[string]string `json:"cardresult"`
-	TransferType   string            `json:"transferType"`
-	TransferTime   int64             `json:"transferTime"`
-	TranAmount     int64             `json:"tranAmount"`
-	Balance        int64             `json:"balance"`
+	Id             int64  `json:"id" form:"id"`
+	BetID          string `json:"betID" form:"betID"`
+	OperatorID     string `json:"operatorID" form:"operatorID"`
+	PlayerID       string `json:"playerID" form:"playerID"`
+	WEPlayerID     string `json:"wEPlayerID" form:"wEPlayerID"`
+	BetDateTime    int64  `json:"betDateTime" form:"betDateTime"`
+	SettlementTime int64  `json:"settlementTime" form:"settlementTime"`
+	BetStatus      string `json:"betStatus" form:"betStatus"`
+	BetCode        string `json:"betCode" form:"betCode"`
+	ValidBetAmount int64  `json:"validBetAmount" form:"validBetAmount"`
+	GameResult     string `json:"gameResult" form:"gameResult"`
+	//Device         string `json:"device" form:"device"`
+	BetAmount     int64 `json:"betAmount" form:"betAmount"`
+	WinlossAmount int64 `json:"winlossAmount" form:"winlossAmount"`
+	//Category       string `json:"category" form:"category"`
+	GameType    string `json:"gameType" form:"gameType"`
+	GameRoundID string `json:"gameRoundID" form:"gameRoundID"`
+	//IP             string `json:"ip" form:"ip"`
+	//UID   string `json:"uid" form:"uid"`
+	//RefID string `json:"RefID"  form:"RefID"`
+	//CardResult     map[string]string `json:"cardresult"`
+	//TransferType   string            `json:"transferType"`
+	//TransferTime   int64             `json:"transferTime"`
+	//TranAmount     int64             `json:"tranAmount"`
+	//Balance        int64             `json:"balance"`
+	CreatedAt time.Time      `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-// func ConvertToTransferInfo(val TransferInfo) TransBig {
-// 	m := TransBig{
+// func ConvertToTransferInfo(val TransferInfo) TransferInfo {
+// 	m := TransferInfo{
 // 		OPERATORID:   val.OperatorID,
 // 		PLAYERID:     val.PlayerID,
 // 		UID:          val.UID,
@@ -81,10 +74,10 @@ type BetInfo struct {
 // 		BALANCE:      val.Balance,
 // 	}
 
-// switch val.TransferType {
-// case 1:
+// switch val.TransferType{
+// case TransferInfo:
 // 	m.TransferType := "deposit"
-// case
+// case TransferInfo:
 // 	m.TransferType := "withdraw"
 // }
 
@@ -110,62 +103,30 @@ func ConvertCardResult(in string) map[string]string {
 	return nil
 }
 
-var checkGameType map[string]bool = map[string]bool{
-	"BAC":  true,
-	"BAS":  true,
-	"BAI":  true,
-	"DT":   true,
-	"BAM":  true,
-	"BAB":  true,
-	"DTB":  true,
-	"BAMB": true,
-	"BASB": true,
-	"ZJH":  true,
-	"OX":   true,
-	"ZJHB": true,
-	"OXB":  true,
-	"BAA":  true,
-	"DTS":  true,
-	"BAL":  true,
+// var checkGameType map[string]bool = map[string]bool{
+// 	"BAC":  true,
+// 	"BAS":  true,
+// 	"BAI":  true,
+// 	"DT":   true,
+// 	"BAM":  true,
+// 	"BAB":  true,
+// 	"DTB":  true,
+// 	"BAMB": true,
+// 	"BASB": true,
+// 	"ZJH":  true,
+// 	"OX":   true,
+// 	"ZJHB": true,
+// 	"OXB":  true,
+// 	"BAA":  true,
+// 	"DTS":  true,
+// 	"BAL":  true,
+// }
+
+//------------------------------------------------------------------------------------------------------------type BetTranInfo struct {
+type TranInfo struct {
+	DataCount int            `json:"dataCount"`
+	Data      []TransferInfo `json:"data"`
 }
-
-func ConvertToBetInfo(val map[string]string) BetInfo {
-	betDateTime, _ := strconv.ParseInt(val["betdatetime"], 10, 64)
-	settlementTime, _ := strconv.ParseInt(val["settlementtime"], 10, 64)
-	betAmount, _ := strconv.ParseInt(val["betamount"], 10, 64)
-	winlossAmount, _ := strconv.ParseInt(val["winlossamount"], 10, 64)
-	validBetAmount, _ := strconv.ParseInt(val["validbetamount"], 10, 64)
-	cardresult := ""
-	if _, ok := checkGameType[val["gametype"]]; ok {
-		cardresult = val["cardresult"]
-	}
-	m := BetInfo{
-		BetID:          val["betid"],
-		OperatorID:     val["operatorid"],
-		PlayerID:       val["opplayerid"],
-		WEPlayerID:     val["playerid"],
-		BetDateTime:    betDateTime / 1000,
-		SettlementTime: settlementTime / 1000,
-		BetCode:        val["betcode"],
-		ValidBetAmount: validBetAmount,
-		GameResult:     val["gameresult"],
-		Device:         val["device"],
-		BetStatus:      val["betstatus"],
-		BetAmount:      betAmount,
-		WinlossAmount:  winlossAmount,
-		Category:       val["category"],
-		GameType:       val["gametype"],
-		GameRoundID:    val["gameroundid"],
-		IP:             val["ip"],
-		CardResult:     ConvertCardResult(cardresult),
-	}
-
-	// {"A1":"spade5","A2":"spade9","A3":"heartj","B1":"spade4","B2":"spade2","B3":""}
-
-	return m
-}
-
-//------------------------------------------------------------------------------------------------------------
 
 func HistoryTransfer(c *gin.Context) {
 	values := url.Values{}
@@ -182,8 +143,8 @@ func HistoryTransfer(c *gin.Context) {
 
 	//自動取得uid
 
-	uid := utils.Generate()
-	fmt.Println(uid)
+	// uid := utils.Generate()
+	// fmt.Println(uid)
 
 	//請求需求欄位
 	values.Set("operatorID", operatorID)
@@ -192,7 +153,7 @@ func HistoryTransfer(c *gin.Context) {
 	values.Set("playerID", opPlayerID)
 	values.Set("requestTime", requestTime)
 	values.Set("appSecret", appSecret)
-	values.Set("uid", uid)
+	//values.Set("uid", uid)
 
 	sTime, eTime := 0, 0
 
@@ -207,10 +168,10 @@ func HistoryTransfer(c *gin.Context) {
 		return
 	}
 
-	if uid == "" && (startTime == "" || endTime == "") {
-		utils.ErrorResponse(c, 400, "Missing parameter: endTime|startTime", nil)
-		return
-	}
+	// if uid == "" && (startTime == "" || endTime == "") {
+	// 	utils.ErrorResponse(c, 400, "Missing parameter: endTime|startTime", nil)
+	// 	return
+	// }
 
 	rtErr := utils.CheckRequestTime(requestTime)
 	if rtErr != nil {
@@ -245,7 +206,7 @@ func HistoryTransfer(c *gin.Context) {
 		}
 	}
 	//轉帳記錄簽名組成
-	st := (c.PostForm("appSecret") + c.PostForm("endTime") + c.PostForm("limit") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime") + uid)
+	st := (c.PostForm("appSecret") + c.PostForm("endTime") + c.PostForm("limit") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime"))
 	md5Str := utils.GetSignature(st)
 	fmt.Println(md5Str)
 
@@ -262,20 +223,13 @@ func HistoryTransfer(c *gin.Context) {
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-	var data DataInfo
-	//json.Unmarshal(body, &data)
-	json.Unmarshal([]byte(body), &data)
-	//容器轉換
-	// count := 0
-	// res := []TransBig{}
-	// for _, val := range data.Data {
-	// 	res = append(res, ConvertToTransferInfo(val))
-	// 	count++
-	// }
-	c.JSON(200, gin.H{"DATACOUNT": data, "DATA": data})
-	//打印看返回的cjson是什麼
-	fmt.Println("data json:", data)
+	var history TranInfo
+	json.Unmarshal(body, &history)
 
+	c.JSON(200, gin.H{
+		"DataCount": history.DataCount,
+		"Data":      history.Data,
+	})
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -391,8 +345,7 @@ func HistoryBet(c *gin.Context) {
 		"LIMIT":      data.Limit,
 		"DATA":       data.Data,
 	})
-	//打印看返回的cjson是什麼
-	fmt.Println("data json:", data)
+
 }
 
 //------------------------------------------------------------------------------------------------------------
@@ -463,6 +416,13 @@ func HistorySummary(c *gin.Context) {
 }
 
 //------------------------------------------------------------------------------------------------------------
+
+type ReportInfo struct {
+	TotalCount int       `json:"totalCount"`
+	DataCount  int       `json:"dataCount"`
+	Data       []BetInfo `json:"data"`
+}
+
 func ReportBet(c *gin.Context) {
 	values := url.Values{}
 	operatorID := c.PostForm("operatorID")
@@ -496,7 +456,7 @@ func ReportBet(c *gin.Context) {
 	values.Set("isSettlementTime", isSettlementTime)
 	values.Set("appSecret", appSecret)
 
-	//預設資料筆數為50筆
+	//預設資料限制筆數為50筆
 	if limit == "" {
 		limit = "50"
 	}
@@ -512,20 +472,20 @@ func ReportBet(c *gin.Context) {
 	}
 
 	//資料限制筆數最大:500
-	iLimit, err := strconv.Atoi(limit)
+	iLimit, err := strconv.Atoi(limit) //字串轉int：Atoi()
 	if err != nil {
 		utils.ErrorResponse(c, 400, "Incorrect limit format: "+limit, nil)
 		return
 	} else if iLimit > 500 {
 		iLimit = 500
 	}
-
+	//驗證時間格式
 	sTime, err := strconv.Atoi(startTime)
 	if err != nil {
 		utils.ErrorResponse(c, 400, "Incorrect startTime format: "+startTime, nil)
 		return
 	}
-
+	//驗證時間格式
 	eTime, err := strconv.Atoi(endTime)
 	if err != nil {
 		utils.ErrorResponse(c, 400, "Incorrect endTime format: "+endTime, nil)
@@ -538,7 +498,7 @@ func ReportBet(c *gin.Context) {
 	}
 
 	//轉帳記錄簽名組成
-	st := (c.PostForm("appSecret") + c.PostForm("betID") + c.PostForm("betstatus") + c.PostForm("category") + c.PostForm("endTime") + c.PostForm("isSettlementTime") + c.PostForm("limit") + c.PostForm("offset") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime"))
+	st := (c.PostForm("appSecret") + c.PostForm("endTime") + c.PostForm("operatorID") + c.PostForm("playerID") + requestTime + c.PostForm("startTime"))
 	md5Str := utils.GetSignature(st)
 	fmt.Println(md5Str)
 
@@ -547,16 +507,60 @@ func ReportBet(c *gin.Context) {
 	req.Header.Add("signature", md5Str)
 	clt := &http.Client{}
 	r, _ := clt.Do(req)
-	if err != nil {
-		panic(err)
+	if r.StatusCode == 400 {
+		utils.ErrorResponse(c, 400, "Incorrect operatorID", err)
+		return
+	}
+	if r.StatusCode == 401 {
+		utils.ErrorResponse(c, 401, "Incorrect signature", err)
+		return
+	}
+	if r.StatusCode == 409 { //**需要調整**
+		utils.ErrorResponse(c, 409, "PlayerID already exists", err)
+		return
+	}
+	if r.StatusCode != 200 {
+		panic(r)
 	}
 
 	defer r.Body.Close()
 	//读取整个响应体
 	body, _ := ioutil.ReadAll(r.Body)
-	var data interface{}
+
+	//定義data使用的類別
+	var data model.BetInfo1
+	var repo model.BetInfo
+	//data.PlayerID = playerID
+	//json.Unmarshal([]byte(body), &data)
+
 	json.Unmarshal(body, &data)
-	c.JSON(200, data)
-	//打印看返回的cjson是什麼
-	fmt.Println("data json:", data)
+	sis := string(data)
+	fmt.Println(sis)
+	json.Unmarshal(body, &repo)
+	//帶入設定的結構帶進表格
+	betrecord := &model.BetInfo1{
+		WEPlayerID:     data.WEPlayerID,
+		PlayerID:       data.PlayerID,
+		OperatorID:     data.OperatorID,
+		BetID:          data.BetID,
+		BetDateTime:    data.BetDateTime,
+		SettlementTime: data.SettlementTime,
+		BetStatus:      data.BetStatus,
+		ValidBetAmount: data.ValidBetAmount,
+		WinlossAmount:  data.WinlossAmount,
+		BetAmount:      data.BetAmount,
+		GameRoundID:    data.GameRoundID,
+		GameType:       data.GameType,
+		GameResult:     data.GameResult,
+		BetCode:        data.BetCode,
+		//CardResult:     data.CardResult,
+	}
+	id := betrecord.BetRecord()
+	fmt.Println(id)
+
+	c.JSON(200, gin.H{
+		"DATACOUNT":  repo.DataCount,
+		"TOTALCOUNT": repo.TotalCount,
+		"DATA":       repo.Data,
+	})
 }
