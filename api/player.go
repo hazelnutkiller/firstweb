@@ -265,7 +265,7 @@ func PlayerDeposit(c *gin.Context) {
 		Time:     data.Time,
 		RefID:    data.RefID,
 	}
-
+	//更新餘額
 	err2 := model.UpdataBalance(&updata)
 	if err2 != nil {
 		fmt.Println(err2)
