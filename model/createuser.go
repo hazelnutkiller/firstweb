@@ -1,11 +1,11 @@
 package model
 
 import (
-	"database/sql/driver"
-	"encoding/json"
 	"firstweb/config"
+	"fmt"
 	"time"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -49,7 +49,7 @@ func init() {
 	//往數據庫裡更新schema
 	db.AutoMigrate(&Createdemo{})
 	db.AutoMigrate(&Userform{})
-	db.AutoMigrate(&BetInfo1{})
+	db.AutoMigrate(&BetInfo{})
 
 }
 
@@ -168,81 +168,70 @@ func UpdataBalance(w *Userform) (err error) {
 //-------------------------betrecord---------------------------------------------------..
 
 //定義投注記錄數據模型
-
-type BetInfo1 struct {
-	Id             int64  `json:"id" form:"id"`
-	BetID          string `gorm:"betID" json:"betID"`
-	OperatorID     string `gorm:"operatorID" json:"operatorID" `
-	PlayerID       string `gorm:"playerID" json:"playerID"`
-	WEPlayerID     string `gorm:"wEPlayerID" json:"wEPlayerID"`
-	BetDateTime    int64  `gorm:"betDateTime" json:"betDateTime"`
-	SettlementTime int64  `gorm:"settlementTime" json:"settlementTime"`
-	BetStatus      string `gorm:"betStatus" json:"betStatus"`
-	BetCode        string `gorm:"betCode" json:"betCode"`
-	ValidBetAmount int64  `gorm:"validBetAmount" json:"validBetAmount"`
-	GameResult     string `gorm:"gameResult" json:"gameResult"`
-	//Device         string `json:"device" form:"device"`
-	BetAmount     int64 `gorm:"betAmount" json:"betAmount"`
-	WinlossAmount int64 `gorm:"winlossAmount" json:"winlossAmount"`
-	//Category       string `json:"category" form:"category"`
-	GameType    string `gorm:"gameType" json:"gameType"`
-	GameRoundID string `gorm:"gameRoundID" json:"gameRoundID"`
-	//IP             string `json:"ip" form:"ip"`
-	//UID   string `json:"uid" form:"uid"`
-	//RefID string `json:"RefID"  form:"RefID"`
-	//CardResult     map[string]string `json:"cardresult"`
-	//TransferType   string            `json:"transferType"`
-	//TransferTime   int64             `json:"transferTime"`
-	//TranAmount     int64             `json:"tranAmount"`
-	//Balance        int64             `json:"balance"`
-	CreatedAt time.Time      `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"created_at,omitempty"`
-	UpdatedAt *time.Time     `gorm:"type:timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" json:"updated_at,omitempty"`
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+type BetData struct {
+	PlayerID       string         `json:"playerID" gorm:"type:varchar(20);notnull"`
+	GameRoundID    string         `json:"gameRoundID" gorm:"type:varchar(50);notnull"`
+	BetID          string         `json:"betID" gorm:"type:varchar(50);notnull"`
+	OperatorID     string         `json:"operatorID" gorm:"-"`
+	WePlayerID     string         `json:"wePlayerID" gorm:"-"`
+	GameType       string         `json:"gameType" gorm:"type:varchar(20);notnull"`
+	BetCode        string         `json:"betCode" gorm:"type:varchar(400);notnull"`
+	GameResult     string         `json:"gameResult" gorm:"type:varchar(100);notnull"`
+	BetStatus      string         `json:"betStatus" gorm:""`
+	BetDataTime    int            `json:"betDateTime" gorm:"-"`
+	SettlementTime int            `json:"settlementTime" gorm:"-"`
+	ValidBetAmount int            `json:"validBetAmount" gorm:"-"`
+	Device         string         `json:"device" gorm:"-"`
+	BetAmount      int            `json:"betAmount" gorm:"type:bigint;notnull"`
+	WinlossAmount  int            `json:"winlossAmount" gorm:"type:bigint;notnull"`
+	Category       string         `json:"category" gorm:"-"`
+	Ip             string         `json:"ip" gorm:"-"`
+	CardResult     datatypes.JSON `json:"cardresult" gorm:"-"`
+	CreatedAt      int64          `json:"-"`
+	UpdatedAt      int64          `json:"-"`
 }
-
-type Data []string
 
 type BetInfo struct {
-	Data       []BetInfo1 `json:"data" form:"data"`
-	TotalCount int        `json:"totalCount" form:"totalCount"`
-	DataCount  int        `json:"dataCount" form:"dataCount"`
-	Id         int64      `json:"id" form:"id"`
-	// BetID          string            `json:"betID" form:"betID"`
-	// OperatorID     string            `json:"operatorID" form:"operatorID"`
-	// PlayerID       string            `json:"playerID" form:"playerID"`
-	// WEPlayerID     string            `json:"wEPlayerID" form:"wEPlayerID"`
-	// SettlementTime int64             `json:"settlementTime" form:"settlementTime"`
-	// BetStatus      string            `json:"betStatus" form:"betStatus"`
-	// BetCode        string            `json:"betCode" form:"betCode"`
-	// ValidBetAmount int64             `json:"validBetAmount" form:"validBetAmount"`
-	// GameResult     string            `json:"gameResult" form:"gameResult"`
-	// Device         string            `json:"device" form:"device"`
-	// BetAmount      int64             `json:"betAmount" form:"betAmount"`
-	// WinlossAmount  int64             `json:"winlossAmount" form:"winlossAmount"`
-	// Category       string            `json:"category" form:"category"`
-	// GameType       string            `json:"gameType" form:"gameType"`
-	// GameRoundID    string            `json:"gameRoundID" form:"gameRoundID"`
-	// IP             string            `json:"ip" form:"ip"`
-	// UID            string            `json:"uid" form:"uid"`
-	// RefID          string            `json:"RefID"  form:"RefID"`
-	// CardResult     map[string]string `json:"cardresult"`
-	// TransferType   string            `json:"transferType"`
-	// TransferTime   int64             `json:"transferTime"`
-	// TranAmount     int64             `json:"tranAmount"`
-	// Balance        int64             `json:"balance"`
+	TotalCount int       `json:"totalCount"`
+	DataCount  int       `json:"dataCount"`
+	Data       []BetData `json:"data" gorm:"foreignKey:playerID"`
 }
 
-func (t *Data) Scan(value interface{}) error {
-	bytesValue, _ := value.([]byte)
-	return json.Unmarshal(bytesValue, t)
-}
+// func (t *Data) Scan(value interface{}) error {
+// 	bytesValue, _ := value.([]byte)
+// 	return json.Unmarshal(bytesValue, t)
+// }
 
-func (t Data) Value() (driver.Value, error) {
-	return json.Marshal(t)
-}
+// func (t Data) Value() (driver.Value, error) {
+// 	return json.Marshal(t)
+// }
 
 //[投注記錄新增進db]
-func (betrecord *BetInfo1) BetRecord() *BetInfo1 {
-	db.Create(&betrecord)
-	return betrecord
+//創建投注資料
+func SaveBetInfo(b *BetInfo) (err error) {
+	bt := db.Migrator().HasTable(&BetData{})
+	if bt == false {
+		db.Migrator().CreateTable(&BetData{})
+	}
+
+	for _, i := range b.Data {
+		newInfo := BetData{
+			PlayerID:      i.PlayerID,
+			GameRoundID:   i.GameRoundID,
+			BetID:         i.BetID,
+			GameType:      i.GameType,
+			BetCode:       i.BetCode,
+			GameResult:    i.GameResult,
+			BetAmount:     i.BetAmount,
+			WinlossAmount: i.WinlossAmount,
+
+			// CardResult:    i.CardResult,
+		}
+
+		if err := db.Create(&newInfo).Error; err != nil {
+			fmt.Println("failed to created info", err)
+		}
+	}
+	return nil
+
 }

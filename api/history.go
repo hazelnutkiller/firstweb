@@ -528,35 +528,17 @@ func ReportBet(c *gin.Context) {
 	body, _ := ioutil.ReadAll(r.Body)
 
 	//定義data使用的類別
-	var data model.BetInfo1
+
 	var repo model.BetInfo
 	//data.PlayerID = playerID
 	//json.Unmarshal([]byte(body), &data)
 
-	json.Unmarshal(body, &data)
-	sis := string(data)
-	fmt.Println(sis)
 	json.Unmarshal(body, &repo)
-	//帶入設定的結構帶進表格
-	betrecord := &model.BetInfo1{
-		WEPlayerID:     data.WEPlayerID,
-		PlayerID:       data.PlayerID,
-		OperatorID:     data.OperatorID,
-		BetID:          data.BetID,
-		BetDateTime:    data.BetDateTime,
-		SettlementTime: data.SettlementTime,
-		BetStatus:      data.BetStatus,
-		ValidBetAmount: data.ValidBetAmount,
-		WinlossAmount:  data.WinlossAmount,
-		BetAmount:      data.BetAmount,
-		GameRoundID:    data.GameRoundID,
-		GameType:       data.GameType,
-		GameResult:     data.GameResult,
-		BetCode:        data.BetCode,
-		//CardResult:     data.CardResult,
+
+	err = model.SaveBetInfo(&repo)
+	if err != nil {
+		fmt.Println(err)
 	}
-	id := betrecord.BetRecord()
-	fmt.Println(id)
 
 	c.JSON(200, gin.H{
 		"DATACOUNT":  repo.DataCount,
