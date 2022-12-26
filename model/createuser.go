@@ -49,7 +49,6 @@ func init() {
 	//往數據庫裡更新schema
 	db.AutoMigrate(&Createdemo{})
 	db.AutoMigrate(&Userform{})
-	db.AutoMigrate(&BetInfo{})
 
 }
 

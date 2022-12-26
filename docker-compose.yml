@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  APP:
+  #創建後的Container名稱
+    container_name: gin_docker
+    #Container所使用的Image
+    image: feb:v01
+    restart: always
+    ports:
+      - 9999:9999
+      #設置依賴關係，先啟動db才是app 
+      depends_on:
+  DB:
+  # 檢查db後回傳值true再啟動app
+   condition: service_healthy
+      
+     DB:
+    container_name: mysql-test
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mindy123
+      MYSQL_DATABASE: firstweb
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - 3306:3306
+      # 先檢查db是否可以正常連線 避免導致db無法連線路由也無法call
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 20s
+      retries: 10

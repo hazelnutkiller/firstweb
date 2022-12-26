@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	//routers.Timeout()
+	routers.Timeout()
 	//----------------------------------------------------
 	//實例化一個路由對象
 	// router := mux.NewRouter()
