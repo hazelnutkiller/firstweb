@@ -1,30 +1,45 @@
-version: '3.8'
+# 選定 docker-compose 的版本，每個版本提供的 API 方法有所差異。
+version: "3.8"
+#此欄位底下會有所有的容器，以下分別有server與db兩個 容器。
 services:
   APP:
-  #創建後的Container名稱
-    container_name: gin_docker
-    #Container所使用的Image
-    image: feb:v01
-    restart: always
-    ports:
-      - 9999:9999
-      #設置依賴關係，先啟動db才是app 
-      depends_on:
-  DB:
-  # 檢查db後回傳值true再啟動app
-   condition: service_healthy
-      
-     DB:
-    container_name: mysql-test
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: mindy123
-      MYSQL_DATABASE: firstweb
+  #說明此容器要使用特定 Dockerfile 來 build，context為檔案目錄，
+    build:
+      context: ./dockerfile
+      #為 Dockerfile 的名字
+      dockerfile: Dockerfile
+      #指定 docker 啟動時所在的目錄，如果目錄不存在會自動創建一個。
+    working_dir: /server
+    #將本機檔案掛載至 docker 內部，本機檔案更新時 docker 內部的掛載檔案也會更新。
     volumes:
-      - db:/var/lib/mysql
+      - .:/server
+      #將本機的 port 做 mapping 與 docker 內部的 poart
     ports:
-      - 3306:3306
+      - "9999:9999"
+      # 說明 a 容器與 b 容器有相關，會等到 b 容器啟動完畢後，再啟動 a 容器。
+    depends_on:
+         - db
+      #指定 docker 啟動時的預設指令 
+    entrypoint: go run main.go
+    #當容器不正常關閉時，會重新啟動容器。
+    restart: always
+  db:
+  
+  # 如果不使用 Dockerfile 來建立容器，你可以直接使用 docker image 來啟動容器。
+    container_name: mysql-test
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+      #指定容器內的環境變數。
+    environment:
+      MYSQL_ROOT_PASSWORD: linkroot
+      MYSQL_DATABASE: demo
+    restart: always
+
+
+
+
+
       # 先檢查db是否可以正常連線 避免導致db無法連線路由也無法call
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
